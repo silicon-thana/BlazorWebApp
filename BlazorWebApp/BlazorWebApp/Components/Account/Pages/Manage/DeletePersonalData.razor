@@ -6,8 +6,6 @@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IdentityUserAccessor UserAccessor
-@inject IdentityRedirectManager RedirectManager
 @inject ILogger<DeletePersonalData> Logger
 
 <PageTitle>Delete Personal Data</PageTitle>
@@ -52,7 +50,7 @@
     protected override async Task OnInitializedAsync()
     {
         Input ??= new();
-        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
         requirePassword = await UserManager.HasPasswordAsync(user);
     }
 
@@ -75,7 +73,7 @@
         var userId = await UserManager.GetUserIdAsync(user);
         Logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
 
-        RedirectManager.RedirectToCurrentPage();
+        // RedirectManager.RedirectToCurrentPage();
     }
 
     private sealed class InputModel

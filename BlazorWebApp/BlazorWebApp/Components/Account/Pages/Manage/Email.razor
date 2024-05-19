@@ -9,7 +9,6 @@
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IEmailSender<ApplicationUser> EmailSender
-@inject IdentityUserAccessor UserAccessor
 @inject NavigationManager NavigationManager
 
 <PageTitle>Manage email</PageTitle>
@@ -67,7 +66,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
         email = await UserManager.GetEmailAsync(user);
         isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
 
