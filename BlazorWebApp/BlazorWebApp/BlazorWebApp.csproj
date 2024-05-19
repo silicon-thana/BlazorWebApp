@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <None Include="compilerconfig.json" />
+    <None Include="wwwroot\js\site.js" />
+    <None Include="wwwroot\js\validation.js" />
   </ItemGroup>
 
 </Project>

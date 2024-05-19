@@ -1,0 +1,49 @@
+﻿<header>
+    <div class="container">
+        <a id="logo" href="/"><img src="/img/logo.svg" alt=""></a>
+
+        <div id="menu">
+            <nav>
+
+                <NavLink class="menu-link" href="/">Overview</NavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink class="menu-link" href="/courses">Courses</NavLink>
+                    </Authorized>
+                    <NotAuthorized>
+                        <NavLink class="menu-link" href="/#features">Features</NavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <NavLink class="menu-link" href="/contact">Contact</NavLink>
+            </nav>
+        </div>
+
+        <div class="btn-switch">
+            <label>Light</label>
+            <label class="switch" for="switch-mode">
+                <input type="checkbox" id="switch-mode" />
+                <span class="slider round"></span>
+
+            </label>
+            <label>Dark</label>
+        </div>
+
+        <div class="account-buttons">
+
+            <AuthorizeView>
+                <Authorized>
+                    <a class="btn-gray" asp-controller="Account" asp-action="SignOut"><i class="fa-regular fa-right-from-bracket"></i><span>Sign Out</span></a>
+                    <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn-gray" href="/signin"><i class="fa-regular fa-right-to-bracket"></i><span>Sign in</span></a>
+                    <a class="btn-theme" href="/signup"><i class="fa-regular fa-user"></i><span>Sign Up</span></a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</header>
+
+@code {
+
+}
