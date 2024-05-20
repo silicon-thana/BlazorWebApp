@@ -1,0 +1,124 @@
+﻿@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient Http
+
+
+
+
+<section class="subscribe">
+    <div class="container">
+        <div class="content">
+            <div class="title">
+                <h1>Don't Want to Miss Anything?<img src="/Images/arrows.svg" /></h1>
+            </div>
+            <div class="subsribe-text">
+                <h5>Sign up for Newsletters</h5>
+            </div>
+        </div>
+
+        <div class="subscribe-form">
+            <EditForm FormName="subscribeform" Model="SubscribeForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                <DataAnnotationsValidator/>
+                <div class="alternative">
+                    <div class="option">
+
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.DailyNewsletter" />
+                                <label>Daily Newsletter</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.AdvertisingUpdates" />
+                                <label>Event Updates</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.WeekinReview" />
+                                <label>Week in Review</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.EventUpdates" />
+                                <label>Event Updates</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.StartupWeekly" />
+                                <label>Startups Weekly</label>
+                            </div>
+                        </div>
+                        <div class="checkbox-group">
+                            <div class="input-group">
+                                <InputCheckbox @bind-Value="SubscribeForm.Podcasts" />
+                                <label>Podcasts</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-email">
+                    <div class="input-group">
+                        <i class="fa-regular fa-envelope"></i>
+                        <InputText type="email" @bind-Value="SubscribeForm.Email" placeholder="Your Email" />
+                    </div>
+                    <button class="btn-theme" type="submit">Subscribe *</button>
+                </div>
+                <ValidationMessage For="@(() => SubscribeForm.Email)" class="field-validation-error" />
+                <span class="status-message">@StatusMessage</span>
+
+                 
+@*                 {
+                    <span class="status-message">* Yes, I agreee to the <a>terms</a> and <a>privacy policy</a>.</span>
+                } *@
+
+
+
+
+            </EditForm>
+        </div>
+    </div>
+
+</section>
+@code {
+    [SupplyParameterFromQuery]
+    public string StatusMessage { get; set; } = "* Yes, I agreee to the terms and privacy policy";
+
+    [SupplyParameterFromForm]
+    public SubscribeFormModel SubscribeForm { get; set; }  = new SubscribeFormModel();
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            var result = await Http.PostAsJsonAsync("", SubscribeForm);
+            if (result.IsSuccessStatusCode)
+                StatusMessage = "Thank you for subscribing";
+        }
+        catch
+        {
+
+            StatusMessage = "Unable to subscribe, please try again";
+        }
+        SubscribeForm = new SubscribeFormModel();
+    }
+
+
+    public class SubscribeFormModel
+    {
+        [Required(ErrorMessage ="Please enter a valid email address")]
+
+        [EmailAddress]
+        [Display(Name = "E-mail Address", Prompt = "Your Email")]
+        public string Email { get; set; } = null!;
+        public bool DailyNewsletter { get; set; }
+        public bool AdvertisingUpdates { get; set; }
+        public bool WeekinReview { get; set; }
+        public bool EventUpdates { get; set; }
+        public bool StartupWeekly { get; set; }
+        public bool Podcasts { get; set; }
+    }
+}
