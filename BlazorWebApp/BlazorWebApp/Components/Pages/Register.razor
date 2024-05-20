@@ -6,7 +6,8 @@
 @using BlazorWebApp.Filters
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using BlazorWebApp.Data@using System.Net.Http
+@using BlazorWebApp.Data
+@using System.Net.Http
 @using System.Net.Http.Json
 
 
@@ -30,7 +31,7 @@
         }
 
 
-        <EditForm Model="SignUpForm" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="OnValidSubmit" FormName="signup" novalidate>
+        <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="signup" novalidate>
             <DataAnnotationsValidator/>
 
             <h1>Create Account</h1>
@@ -40,37 +41,37 @@
 
                 <div id="form-firstname" class="input-group">
                     <label>First Name</label>
-                    <InputText @bind-Value="SignUpForm.FirstName" autocomplete="givenname" aria-required="true" placeholder="Enter your first name" />
-                    <ValidationMessage For="() => SignUpForm.FirstName"/>
+                    <InputText @bind-Value="Input.FirstName" autocomplete="givenname" aria-required="true" placeholder="Enter your first name" />
+                    <ValidationMessage For="() => Input.FirstName" />
 
                 </div>
 
                 <div id="form-lastname" class="input-group">
                     <label>Last Name</label>
-                    <InputText @bind-Value="SignUpForm.LastName" autocomplete="surname" aria-required="true" placeholder="Enter your last name" />
-                    <ValidationMessage For="() => SignUpForm.LastName" />
+                    <InputText @bind-Value="Input.LastName" autocomplete="surname" aria-required="true" placeholder="Enter your last name" />
+                    <ValidationMessage For="() => Input.LastName" />
                 </div>
                 <div id="form-email" class="input-group">
                     <label>Email</label>
-                    <InputText type="email" @bind-Value="SignUpForm.Email" autocomplete="email" aria-required="true" placeholder="Enter your email address" />
-                    <ValidationMessage For="() => SignUpForm.Email" />
+                    <InputText type="email" @bind-Value="Input.Email" autocomplete="email" aria-required="true" placeholder="Enter your email address" />
+                    <ValidationMessage For="() => Input.Email" />
                 </div>
                 <div id="form-password" class="input-group">
                     <label>Password</label>
-                    <InputText type="password" @bind-Value="SignUpForm.Password" autocomplete="password" aria-required="true" placeholder="********" />
-                    <ValidationMessage For="() => SignUpForm.Password" />
+                    <InputText type="password" @bind-Value="Input.Password" autocomplete="password" aria-required="true" placeholder="********" />
+                    <ValidationMessage For="() => Input.Password" />
                 </div>
                 <div id="form-confirmpassword" class="input-group">
                     <label>Confirm Password</label>
-                    <InputText type="password" @bind-Value="SignUpForm.ConfirmPassword" autocomplete="confirm" aria-required="true" placeholder="********" />
-                    <ValidationMessage For="() => SignUpForm.ConfirmPassword" />
+                    <InputText type="password" @bind-Value="Input.ConfirmPassword" autocomplete="confirm" aria-required="true" placeholder="********" />
+                    <ValidationMessage For="() => Input.ConfirmPassword" />
                 </div>
                 <div id="form-terms" class="checkbox">
                     <div class="checkbox-group">
-                        <InputCheckbox @bind-Value="SignUpForm.TermsNCondition" autocomplete="terms" aria-required="true" />
+                        <InputCheckbox @bind-Value="Input.TermsNCondition" autocomplete="terms" aria-required="true" />
                         <label>I agree to the <a href="">Terms</a> & <a href="">Conditions</a>.</label>
                     </div>
-                    <ValidationMessage For="() => SignUpForm.TermsNCondition" />
+                    <ValidationMessage For="() => Input.TermsNCondition" />
                 </div>
             </div>
             <button id="form-submit" class="btn-theme-s" type="submit">Sign Up</button>
@@ -81,7 +82,7 @@
 </section>
 
 
-@code{
+@* @code{
     [SupplyParameterFromQuery]
     private string? StatusMessage { get; set; }
     [SupplyParameterFromQuery]
@@ -106,18 +107,18 @@
             return;
         }
 
-        await Http.PostAsJsonAsync("VERIFICATIONPROVIDER", SignUpForm);
-        if (UserManager.Options.SignIn.RequireConfirmedAccount)
-        {
-            NavigationManager.NavigateTo($"/confirm?email={user.Email}");
+        // await Http.PostAsJsonAsync("", SignUpForm);
+        // if (UserManager.Options.SignIn.RequireConfirmedAccount)
+        // {
+        //     NavigationManager.NavigateTo($"/confirm?email={user.Email}");
             
-        }
+        // }
 
 
-    }
+    } *@
     
 
-    public class SignUpFormModel
+@*     public class SignUpFormModel
     {
         [Required]
         [Display(Name = "First name", Order = 0)]
@@ -152,31 +153,19 @@
         public bool TermsNCondition { get; set; }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
+} *@
 
 
 
 @code {
-
-    private string? ErrorMessage { get; set; }
     private IEnumerable<IdentityError>? identityErrors;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+    [SupplyParameterFromQuery]
+    private string? StatusMessage { get; set; }
 
 
 
