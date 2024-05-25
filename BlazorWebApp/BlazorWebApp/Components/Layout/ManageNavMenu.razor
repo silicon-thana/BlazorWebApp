@@ -19,10 +19,9 @@
         <p>@User?.Email</p>
     </div>
     <nav>
-        <NavLink class="btn-theme-s">Account Details</NavLink>
-
-        <NavLink class="btn-transparent" href="/account/security">Security</NavLink>
-        <NavLink class="btn-transparent" href="/account/saved-courses">Saved Courses</NavLink>
+        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
+        <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
+        <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>
         <button class="btn-transparent" @onclick="SignOut">Sign Out</button>
     </nav>
 </aside>

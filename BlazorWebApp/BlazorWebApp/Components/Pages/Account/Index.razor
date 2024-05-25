@@ -93,12 +93,15 @@
     private ApplicationUser user = default!;
     private string? username;
     private string? phoneNumber;
-    private string? StatusMessage;
+
+    [SupplyParameterFromQuery]
+    private string? StatusMessage { get; set; }
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
+    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm]
     private AddressInputModel AddressInput { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
@@ -135,7 +138,7 @@
         user.FirstName = Input.FirstName ?? user.FirstName;
         user.LastName = Input.LastName ?? user.LastName;
         user.Email = Input.Email ?? user.Email;
-        user.Biography = Input.Biography ?? user.Biography; // Assuming you have a Bio property in ApplicationUser
+        user.Biography = Input.Biography ?? user.Biography;
 
         var updateResult = await UserManager.UpdateAsync(user);
         if (updateResult.Succeeded)

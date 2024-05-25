@@ -1,3 +1,13 @@
 ﻿@using BlazorWebApp.Components.Layout
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using BlazorWebApp.Data
+
+
 @layout ManageLayout
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
