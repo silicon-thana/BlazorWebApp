@@ -8,46 +8,115 @@
 @inject SignInManager<ApplicationUser> SignInManager
 
 <PageTitle>Profile</PageTitle>
+<section id="account-details" class="account">
+    <div class="container">
+        <div class="details">
+            <section class="basic-info">
+                <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+                    <DataAnnotationsValidator />
+                    <h2>Account Info</h2>
+                    <h5>Basic Info</h5>
+                    <div class="content">
+                        <div id="form-firstname" class="input-group">
+                            <InputText @bind-Value="Input.FirstName" placeholder="Enter your first name" />
+                            <label for="FirstName">FirstName</label>
+                            <ValidationMessage For="() => Input.FirstName" class="text-danger" />
+                        </div>
+                        <div id="form-lastname" class="input-group">
+                            <InputText @bind-Value="Input.LastName"  placeholder="Enter your last name" />
+                            <label for="FirstName">Lastname</label>
+                            <ValidationMessage For="() => Input.LastName" class="text-danger" />
+                        </div>
+                        <div id="form-email" class="input-group">
+                            <InputText @bind-Value="Input.Email"  placeholder=@user />
+                            <label for="FirstName">Email</label>
+                            <ValidationMessage For="() => Input.Email" class="text-danger" />
+                        </div>
+                        <div id="form-phone" class="input-group">
+                            <InputText @bind-Value="Input.PhoneNumber" placeholder="Enter your phone" />
+                            <label for="FirstName">PhoneNumber</label>
+                            <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+                        </div>
+                        <div id="form-bio" class="input-group">
+                            <InputTextArea @bind-Value="Input.Biography" placeholder="Add a short bio..." />
+                            <label for="FirstName">Biography</label>
+                            <ValidationMessage For="() => Input.Biography" class="text-danger" />
+                        </div>
 
-<h3>Profile</h3>
+                        <div class="form-buttons">
+                            <button class="btn-gray" type="reset">Cancel</button>
+                            <button class="btn-theme" type="submit">Save Changes</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </section>
+            <hr />
+            <section class="adress-info">
+                <EditForm Model="AddressInput" FormName="address" OnValidSubmit="OnValidSubmitAddressAsync" method="post" novalidate>
+                    <DataAnnotationsValidator />
+                    <h5>Address</h5>
+                    <div class="content">
+                        <div id="form-addressline-1" class="input-group">
+                            <InputText @bind-Value="AddressInput.AddressLine1" placeholder="Enter address line 1" />
+                            <label for="AddressLine1">Address Line 1</label>
+                            <ValidationMessage For="() => AddressInput.AddressLine1" class="text-danger" />
+                        </div>
+                        <div id="form-addressline-2" class="input-group">
+                            <InputText @bind-Value="AddressInput.AddressLine2" placeholder="Enter address line 2 (optional)" />
+                            <label for="AddressLine2">Address Line 2</label>
+                            <ValidationMessage For="() => AddressInput.AddressLine2" class="text-danger" />
+                        </div>
+                        <div id="form-postalcode" class="input-group">
+                            <InputText @bind-Value="AddressInput.PostalCode" placeholder="Enter postal code" />
+                            <label for="PostalCode">Postal Code</label>
+                            <ValidationMessage For="() => AddressInput.PostalCode" class="text-danger" />
+                        </div>
+                        <div id="form-city" class="input-group">
+                            <InputText @bind-Value="AddressInput.City" placeholder="Enter city" />
+                            <label for="City">City</label>
+                            <ValidationMessage For="() => AddressInput.City" class="text-danger" />
+                        </div>
+                        <div class="form-buttons">
+                            <button class="btn-gray" type="reset">Cancel</button>
+                            <button class="btn-theme" type="submit">Save Changes</button>
+                        </div>
+                    </div>
+                </EditForm>
 
-<div class="row">
-    <div class="col-md-6">
-        <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
-                <label for="username" class="form-label">Username</label>
-            </div>
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
-                <label for="phone-number" class="form-label">Phone number</label>
-                <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </EditForm>
+            </section>
+        </div>
     </div>
-</div>
+</section>
 
 @code {
     private ApplicationUser user = default!;
     private string? username;
     private string? phoneNumber;
+    private string? StatusMessage;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
+    private AddressInputModel AddressInput { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? new ApplicationUser();
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
+        Input.FirstName ??= user.FirstName;
+        Input.LastName ??= user.LastName;
+        Input.Email ??= user.Email;
         Input.PhoneNumber ??= phoneNumber;
+        Input.Biography ??= user.Biography;
+
+        // Ensure Address is not null before accessing its properties
+        AddressInput.AddressLine1 = user.Address?.AddressLine_1 ?? string.Empty;
+        AddressInput.AddressLine2 = user.Address?.AddressLine_2 ?? string.Empty;
+        AddressInput.PostalCode = user.Address?.PostalCode ?? string.Empty;
+        AddressInput.City = user.Address?.City ?? string.Empty;
     }
 
     private async Task OnValidSubmitAsync()
@@ -57,18 +126,90 @@
             var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!setPhoneResult.Succeeded)
             {
-                // RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+                // Handle the error (e.g., display a message)
+                return;
             }
         }
 
-        await SignInManager.RefreshSignInAsync(user);
-        // RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+        user.FirstName = Input.FirstName ?? user.FirstName;
+        user.LastName = Input.LastName ?? user.LastName;
+        user.Email = Input.Email ?? user.Email;
+        user.Biography = Input.Biography ?? user.Biography; // Assuming you have a Bio property in ApplicationUser
+
+        var updateResult = await UserManager.UpdateAsync(user);
+        if (updateResult.Succeeded)
+        {
+            await SignInManager.RefreshSignInAsync(user);
+            // Redirect or notify success
+        }
+        else
+        {
+            // Handle the error (e.g., display a message)
+        }
+    }
+    private async Task OnValidSubmitAddressAsync()
+    {
+        // Ensure Address object is not null
+        if (user.Address == null)
+        {
+            user.Address = new AddressEntity();
+        }
+
+        user.Address.AddressLine_1 = AddressInput.AddressLine1 ?? user.Address.AddressLine_1;
+        user.Address.AddressLine_2 = AddressInput.AddressLine2;
+        user.Address.PostalCode = AddressInput.PostalCode ?? user.Address.PostalCode;
+        user.Address.City = AddressInput.City ?? user.Address.City;
+
+        var updateResult = await UserManager.UpdateAsync(user);
+        if (updateResult.Succeeded)
+        {
+            await SignInManager.RefreshSignInAsync(user);
+            StatusMessage = "Your address has been updated";
+        }
+        else
+        {
+            StatusMessage = "Unexpected error when trying to update your address.";
+        }
     }
 
     private sealed class InputModel
     {
+        [Required]
+        [Display(Name = "First Name")]
+        public string? FirstName { get; set; }
+
+        [Required]
+        [Display(Name = "Last Name")]
+        public string? LastName { get; set; }
+
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string? Email { get; set; }
+
         [Phone]
-        [Display(Name = "Phone number")]
+        [Display(Name = "Phone Number")]
         public string? PhoneNumber { get; set; }
+
+        [Display(Name = "Biography")]
+        public string? Biography { get; set; }
+    }
+
+    private sealed class AddressInputModel
+    {
+        [Required]
+        [Display(Name = "Address Line 1")]
+        public string? AddressLine1 { get; set; }
+
+        [Display(Name = "Address Line 2")]
+        public string? AddressLine2 { get; set; }
+
+        [Required]
+        [Display(Name = "Postal Code")]
+        public string? PostalCode { get; set; }
+
+        [Required]
+        [Display(Name = "City")]
+        public string? City { get; set; }
     }
 }
