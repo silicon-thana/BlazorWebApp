@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Account\Shared\" />
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
   <ItemGroup>

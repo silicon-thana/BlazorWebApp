@@ -1,37 +1,89 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
 
-@inject SignInManager<ApplicationUser> SignInManager
+@rendermode InteractiveServer
 
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profile</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/Email">Email</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/ChangePassword">Password</NavLink>
-    </li>
-    @if (hasExternalLogins)
-    {
-        <li class="nav-item">
-            <NavLink class="nav-link" href="Account/Manage/ExternalLogins">External logins</NavLink>
-        </li>
-    }
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/TwoFactorAuthentication">Two-factor authentication</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/PersonalData">Personal data</NavLink>
-    </li>
-</ul>
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<aside>
+    <div class="profile-info">
+        <div>
+            <img src="@User?.ProfileImg" alt='@($"{User?.FirstName} {User?.LastName}")' />
+            <InputFile OnChange="HandleSelected" />
+            <button @onclick="UploadProfilePicture">Change Profile Picture</button>
+        </div>
+        <h3>@User?.FirstName @User?.LastName</h3>
+        <p>@User?.Email</p>
+    </div>
+    <nav>
+        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
+        <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
+        <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>
+        <button class="btn-transparent" @onclick="SignOut">Sign Out</button>
+    </nav>
+</aside>
 
 @code {
-    private bool hasExternalLogins;
+    [Parameter]
+    public ApplicationUser? User { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private IBrowserFile? selectedFile;
+
+    private async Task SignOut()
     {
-        hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+        await SignInManager.SignOutAsync();
+        // Redirect to home page or login page after sign out
+        NavigationManager.NavigateTo("/"); // You can change this to the appropriate redirect URL
+    }
+
+    private void HandleSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    private async Task UploadProfilePicture()
+    {
+        if (selectedFile == null)
+        {
+            // Display an error message
+            return;
+        }
+
+        try
+        {
+            var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(selectedFile.OpenReadStream());
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
+            content.Add(fileContent, "file", selectedFile.Name);
+
+            var response = await HttpClient.PostAsync("https://fileprovider-silicon-thanakorn.azurewebsites.net/api/Upload?code=EPHb-nS8kiQvzlnHKoTHLmSNk_ts4vHfz4IUdYb5Kt5yAzFuAKFdBQ%3D%3D", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var fileUrl = await response.Content.ReadAsStringAsync();
+                if (User != null)
+                {
+                    User.ProfileImg = fileUrl;
+
+                    var updateResult = await UserManager.UpdateAsync(User);
+                    if (updateResult.Succeeded)
+                    {
+                        // Optionally, refresh the user information
+                        StateHasChanged();
+                    }
+                }
+            }
+            else
+            {
+                // Handle the error (e.g., display a message)
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception (e.g., display a message)
+        }
     }
 }
