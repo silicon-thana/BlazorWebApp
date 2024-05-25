@@ -1,10 +1,18 @@
-﻿<header>
+﻿@using BlazorWebApp.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject NavigationManager NavigationManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+<header>
     <div class="container">
         <a id="logo" href="/"><img src="/img/logo.svg" alt=""></a>
 
         <div id="menu">
             <nav>
-
                 <NavLink class="menu-link" href="/">Overview</NavLink>
                 <AuthorizeView>
                     <Authorized>
@@ -23,16 +31,16 @@
             <label class="switch" for="switch-mode">
                 <input type="checkbox" id="switch-mode" />
                 <span class="slider round"></span>
-
             </label>
             <label>Dark</label>
         </div>
 
         <div class="account-buttons">
-
             <AuthorizeView>
                 <Authorized>
-                    <a class="btn-gray" asp-controller="Account" asp-action="SignOut"><i class="fa-regular fa-right-from-bracket"></i><span>Sign Out</span></a>
+                    <button class="nav-link btn-gray" @onclick="SignOut">
+                        <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                    </button>
                     <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
                 </Authorized>
                 <NotAuthorized>
@@ -45,5 +53,18 @@
 </header>
 
 @code {
-
+    private async Task SignOut()
+    {
+        Console.WriteLine("SignOut method called."); 
+        try
+        {
+            await SignInManager.SignOutAsync();
+            Console.WriteLine("SignOutAsync called."); 
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SignOut failed: {ex.Message}");
+        }
+    }
 }
