@@ -10,6 +10,7 @@
 <PageTitle>Profile</PageTitle>
 <section id="account-details" class="account">
     <div class="container">
+        <ManageNavMenu User="user"/>
         <div class="details">
             <section class="basic-info">
                 <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
@@ -106,11 +107,11 @@
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
-        Input.FirstName ??= user.FirstName;
-        Input.LastName ??= user.LastName;
-        Input.Email ??= user.Email;
-        Input.PhoneNumber ??= phoneNumber;
-        Input.Biography ??= user.Biography;
+        Input.FirstName = user.FirstName;
+        Input.LastName = user.LastName;
+        Input.Email = user.Email;
+        Input.PhoneNumber = phoneNumber;
+        Input.Biography = user.Biography;
 
         // Ensure Address is not null before accessing its properties
         AddressInput.AddressLine1 = user.Address?.AddressLine_1 ?? string.Empty;
