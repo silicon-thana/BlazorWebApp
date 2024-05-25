@@ -10,6 +10,7 @@
 <PageTitle>Profile</PageTitle>
 <section id="account-details" class="account">
     <div class="container">
+        <ManageNavMenu User="user"/>
         <div class="details">
             <section class="basic-info">
                 <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
@@ -92,12 +93,15 @@
     private ApplicationUser user = default!;
     private string? username;
     private string? phoneNumber;
-    private string? StatusMessage;
+
+    [SupplyParameterFromQuery]
+    private string? StatusMessage { get; set; }
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
+    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm]
     private AddressInputModel AddressInput { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
@@ -106,11 +110,11 @@
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
-        Input.FirstName ??= user.FirstName;
-        Input.LastName ??= user.LastName;
-        Input.Email ??= user.Email;
-        Input.PhoneNumber ??= phoneNumber;
-        Input.Biography ??= user.Biography;
+        Input.FirstName = user.FirstName;
+        Input.LastName = user.LastName;
+        Input.Email = user.Email;
+        Input.PhoneNumber = phoneNumber;
+        Input.Biography = user.Biography;
 
         // Ensure Address is not null before accessing its properties
         AddressInput.AddressLine1 = user.Address?.AddressLine_1 ?? string.Empty;
@@ -134,7 +138,7 @@
         user.FirstName = Input.FirstName ?? user.FirstName;
         user.LastName = Input.LastName ?? user.LastName;
         user.Email = Input.Email ?? user.Email;
-        user.Biography = Input.Biography ?? user.Biography; // Assuming you have a Bio property in ApplicationUser
+        user.Biography = Input.Biography ?? user.Biography;
 
         var updateResult = await UserManager.UpdateAsync(user);
         if (updateResult.Succeeded)
