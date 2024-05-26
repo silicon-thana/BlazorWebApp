@@ -13,6 +13,14 @@
 
 <section id="signin">
     <div class="container">
+
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i>
+            <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <i class="fa-solid fa-angles-right"></i>
+            <NavLink ActiveClass="active" href="/signin" Match="NavLinkMatch.All">Sign In</NavLink>
+        </div>
+
          <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />
             <h1>Welcome Back</h1>

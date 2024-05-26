@@ -18,6 +18,34 @@
             width: 40%;
         }
 
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: $gray-600;
+
+            i {
+                color: $gray-600;
+            }
+
+            a {
+                text-decoration: none;
+                color: $gray-600;
+
+                &:hover {
+                    transition: all 0.15s ease-in-out;
+                    cursor: pointer;
+                    color: $info;
+                }
+            }
+
+            .active {
+                color: $theme;
+            }
+        }
+
         form {
             padding: 1rem;
             border-bottom: 1px solid #ccc;
@@ -69,7 +97,8 @@
             .social-button {
                 display: flex;
                 justify-content: space-between;
-                gap:50px;;
+                gap: 50px;
+                ;
 
 
                 button {
