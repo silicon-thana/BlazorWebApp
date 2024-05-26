@@ -9,7 +9,11 @@
 
 <header>
     <div class="container">
-        <a id="logo" href="/"><img src="/img/logo.svg" alt=""></a>
+        <a id="logo" href="/"><img src="/img/logo.svg" alt="Logo"></a>
+
+        <div class="btn-mobile" onclick="toggleMobileMenu()">
+            <i class="fa fa-bars"></i>
+        </div>
 
         <div id="menu">
             <nav>
@@ -49,9 +53,36 @@
                 </NotAuthorized>
             </AuthorizeView>
         </div>
+
+        <div id="mobile-menu" class="mobile-menu">
+            <button class="close-menu" onclick="toggleMobileMenu()"><i class="fa-light fa-xmark"></i></button>
+            <nav>
+                <NavLink class="menu-link" href="/">Overview</NavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink class="menu-link" href="/courses">Courses</NavLink>
+                    </Authorized>
+                    <NotAuthorized>
+                        <NavLink class="menu-link" href="/#features">Features</NavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <NavLink class="menu-link" href="/contact">Contact</NavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <button class="nav-link btn-gray" @onclick="SignOut">
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                        <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
+                    </Authorized>
+                    <NotAuthorized>
+                        <a class="btn-gray" href="/signin"><i class="fa-regular fa-right-to-bracket"></i><span>Sign in</span></a>
+                        <a class="btn-theme" href="/signup"><i class="fa-regular fa-user"></i><span>Sign Up</span></a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </nav>
+        </div>
     </div>
 </header>
-
 @code {
     private async Task SignOut()
     {
