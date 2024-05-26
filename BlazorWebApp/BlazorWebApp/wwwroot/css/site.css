@@ -939,29 +939,17 @@ section.feature .container .feature-box #box-6 {
 #signin .container .signin-social {
   margin-top: 1rem;
   text-align: center;
-  /*            .signin-google {
-                  background-color: #db4437;
-                  color: white;
-
-                  &:hover {
-                      background-color: #c33c2e;
-                  }
-              }
-
-              .signin-facebook {
-                  background-color: #3b5998;
-                  color: white;
-
-                  &:hover {
-                      background-color: #334d84;
-                  }
-              }*/
 }
 #signin .container .signin-social h6 {
   margin-bottom: 1rem;
 }
-#signin .container .signin-social .btn-gray {
-  display: inline-block;
+#signin .container .signin-social .social-button {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+#signin .container .signin-social .social-button button {
+  padding: 10px 50px;
 }
 
 section.managework .container {
