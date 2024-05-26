@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
 
-@rendermode InteractiveServer
+@rendermode InteractiveServer 
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -11,9 +11,7 @@
 <aside>
     <div class="profile-info">
         <div>
-            <img src="@User?.ProfileImg" alt='@($"{User?.FirstName} {User?.LastName}")' />
-            <InputFile OnChange="HandleSelected" />
-            <button @onclick="UploadProfilePicture">Change Profile Picture</button>
+            <ProfilePicture/>
         </div>
         <h3>@User?.FirstName @User?.LastName</h3>
         <p>@User?.Email</p>
@@ -30,60 +28,11 @@
     [Parameter]
     public ApplicationUser? User { get; set; }
 
-    private IBrowserFile? selectedFile;
-
     private async Task SignOut()
     {
         await SignInManager.SignOutAsync();
         // Redirect to home page or login page after sign out
-        NavigationManager.NavigateTo("/"); // You can change this to the appropriate redirect URL
+        NavigationManager.NavigateTo("/"); // Change this to the appropriate redirect URL
     }
-
-    private void HandleSelected(InputFileChangeEventArgs e)
-    {
-        selectedFile = e.File;
-    }
-
-    private async Task UploadProfilePicture()
-    {
-        if (selectedFile == null)
-        {
-            // Display an error message
-            return;
-        }
-
-        try
-        {
-            var content = new MultipartFormDataContent();
-            var fileContent = new StreamContent(selectedFile.OpenReadStream());
-            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
-            content.Add(fileContent, "file", selectedFile.Name);
-
-            var response = await HttpClient.PostAsync("https://fileprovider-silicon-thanakorn.azurewebsites.net/api/Upload?code=EPHb-nS8kiQvzlnHKoTHLmSNk_ts4vHfz4IUdYb5Kt5yAzFuAKFdBQ%3D%3D", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var fileUrl = await response.Content.ReadAsStringAsync();
-                if (User != null)
-                {
-                    User.ProfileImg = fileUrl;
-
-                    var updateResult = await UserManager.UpdateAsync(User);
-                    if (updateResult.Succeeded)
-                    {
-                        // Optionally, refresh the user information
-                        StateHasChanged();
-                    }
-                }
-            }
-            else
-            {
-                // Handle the error (e.g., display a message)
-            }
-        }
-        catch (Exception ex)
-        {
-            // Handle the exception (e.g., display a message)
-        }
-    }
+  
 }
