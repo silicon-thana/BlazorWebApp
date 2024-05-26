@@ -5,6 +5,7 @@
 
     .container {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100%;
@@ -19,6 +20,7 @@
 
         form {
             padding: 1rem;
+            border-bottom: 1px solid #ccc;
 
             .content {
                 display: grid;
@@ -47,26 +49,44 @@
                     grid-area: forgot;
                     margin: 1rem 0 0 0;
                     text-align: center;
+                    color:$theme;
                 }
-                #form-invalid{
+
+                #form-invalid {
                     grid-area: invalid;
-
-                }
-
-                hr {
-                    grid-area: hr;
-                }
-
-                #external-signin {
-                    grid-area: external;
-                    display: flex;
-                    gap: 1rem;
-
-                    a {
-                        flex: 1;
-                    }
                 }
             }
+        }
+
+        .signin-social {
+            margin-top: 1rem;
+            text-align: center;
+
+            h6 {
+                margin-bottom: 1rem;
+            }
+
+            .btn-gray {
+                display: inline-block;
+            }
+
+/*            .signin-google {
+                background-color: #db4437;
+                color: white;
+
+                &:hover {
+                    background-color: #c33c2e;
+                }
+            }
+
+            .signin-facebook {
+                background-color: #3b5998;
+                color: white;
+
+                &:hover {
+                    background-color: #334d84;
+                }
+            }*/
         }
     }
 }
