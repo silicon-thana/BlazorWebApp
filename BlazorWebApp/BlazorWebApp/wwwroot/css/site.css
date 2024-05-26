@@ -1564,53 +1564,54 @@ section.subscribe .container .subscribe-form form input {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  padding: 60px 0;
+  padding: 60px 50px;
   margin-top: 40px;
 }
-.contact .container .contact-form form {
+.contact .container .contact-form EditForm {
   display: flex;
   justify-content: center;
   width: 80%;
+  background-color: #FFFFFF;
 }
 @media (min-width: 1200px) {
-  .contact .container .contact-form form {
+  .contact .container .contact-form EditForm {
     justify-content: start;
   }
 }
-.contact .container .contact-form form label {
+.contact .container .contact-form EditForm label {
   color: #0B0F19;
   font-weight: 600;
 }
-.contact .container .contact-form form label span {
+.contact .container .contact-form EditForm label span {
   color: #9397AD;
 }
-.contact .container .contact-form form input {
+.contact .container .contact-form EditForm input {
   padding: 10px 15px;
   border-radius: 8px;
 }
-.contact .container .contact-form form input::placeholder {
+.contact .container .contact-form EditForm input::placeholder {
   color: #B4B7C9;
 }
-.contact .container .contact-form form input:focus {
+.contact .container .contact-form EditForm input:focus {
   box-shadow: 0px 8px 18px -8px rgba(19, 16, 34, 0.15);
   border-color: rgba(99, 101, 241, 0.0784313725);
 }
-.contact .container .contact-form form textarea {
+.contact .container .contact-form EditForm textarea {
   resize: none;
 }
-.contact .container .contact-form form textarea::placeholder {
+.contact .container .contact-form EditForm textarea::placeholder {
   color: #B4B7C9;
 }
-.contact .container .contact-form form textarea:focus {
+.contact .container .contact-form EditForm textarea:focus {
   box-shadow: 0px 8px 18px -8px rgba(19, 16, 34, 0.15);
   border-color: rgba(99, 101, 241, 0.0784313725);
 }
-.contact .container .contact-form form select {
+.contact .container .contact-form EditForm select {
   padding: 10px 15px;
   border-radius: 8px;
   color: #B4B7C9;
 }
-.contact .container .contact-form form select:focus {
+.contact .container .contact-form EditForm select:focus {
   box-shadow: 0px 8px 18px -8px rgba(19, 16, 34, 0.15);
   border-color: rgba(99, 101, 241, 0.0784313725);
 }
