@@ -921,8 +921,8 @@ section.managework .container .content a {
 }
 
 section.mockup img {
-  max-width: 100%; /* Ensure the image fills its container */
-  height: auto; /* Maintain aspect ratio */
+  max-width: 100%;
+  height: auto;
 }
 
 section {

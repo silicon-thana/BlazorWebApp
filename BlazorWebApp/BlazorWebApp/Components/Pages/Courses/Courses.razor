@@ -1,0 +1,184 @@
+﻿@page "/courses"
+@using System.Text.Json.Serialization
+@using System.Text.Json
+@attribute [StreamRendering]
+@inject HttpClient Http
+
+<PageTitle>Courses</PageTitle>
+
+<section class="courses" id="courses">
+    <div class="container">
+
+        <div class="header">
+            <h1>Courses</h1>
+            <form id="form-filter">
+                <select>
+                    <option>All categories</option>
+                </select>
+                <div class="input-search-group">
+                    <input id="searchQuery" name="searchQuery" placeholder="Search Courses" />
+                    <i class="fa-regular fa-search"></i>
+                </div>
+            </form>
+        </div>
+        <div class="course-content">
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="error">@errorMessage</p>
+            }
+            else if (courses == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else if (courses.Length == 0)
+            {
+                <p><em>No courses found.</em></p>
+            }
+            else
+            {
+                @foreach (var course in courses)
+                {
+                    <div class="course">
+                        @if (course.IsBestseller)
+                        {
+                            <div class="best-seller">Best Seller</div>
+                        }
+                        <img class="course-img" src="@course.ImageUri" />
+                        <h5 class="course-title">@course.Title</h5>
+                        <div class="content">
+                            <div class="course-author">by @string.Join(", ", course.Authors.Select(a => a.Name))</div>
+                            @if (course.Prices.Discount > 0)
+                            {
+                                <div class="course-prices">
+                                    <div class="course-discount">$@course.Prices.Discount</div>
+                                    <div class="course-price-reduced">$@course.Prices.Price</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="course-prices">
+                                    <div class="course-price">$@course.Prices.Price</div>
+                                </div>
+                            }
+
+                            <div class="course-info">
+                                <div class="course-hour"><i class="fa-regular fa-clock"></i>@course.Hours hours</div>
+                                <div class="course-likes">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span>@course.LikesInProcent</span>
+                                    <span>(@course.Likes<span>K</span>)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    private CourseModel[]? courses;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var query = new GraphQLQuery
+                {
+                    Query = @"{ getCourses { id isBestseller title authors { name } categories prices { price discount currency } hours likesInProcent likes imageUri } }"
+                };
+
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://courseprovider-silicon-thanakorn.azurewebsites.net/api/graphql?code=PM4hag2rE0gh_6oywqUZXEZW0ugeHw_37FxxfAghABi_AzFuYKTQGA%3D%3D")
+                {
+                    Content = JsonContent.Create(query)
+                };
+
+            var response = await Http.SendAsync(requestMessage);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
+                if (result?.Data.TryGetProperty("getCourses", out var coursesData) == true)
+                {
+                    courses = coursesData.EnumerateArray()
+                        .Select(course => new CourseModel
+                            {
+                                Id = course.TryGetProperty("id", out var id) ? id.GetString() : null,
+                                IsBestseller = course.TryGetProperty("isBestseller", out var isBestseller) && isBestseller.GetBoolean(),
+                                ImageUri = course.TryGetProperty("imageUri", out var imageUri) ? imageUri.GetString() : null,
+                                Title = course.TryGetProperty("title", out var title) ? title.GetString() : null,
+                                Authors = course.TryGetProperty("authors", out var authors) ? authors.EnumerateArray().Select(a => new Author
+                                {
+                                    Name = a.TryGetProperty("name", out var name) ? name.GetString() : null
+                                }).ToList() : new List<Author>(),
+                                Prices = course.TryGetProperty("prices", out var prices) ? new Prices
+                                {
+                                    Currency = prices.TryGetProperty("currency", out var currency) ? currency.GetString() : null,
+                                    Price = prices.TryGetProperty("price", out var price) ? price.GetDecimal() : 0,
+                                    Discount = prices.TryGetProperty("discount", out var discount) ? discount.GetDecimal() : 0
+                                } : new Prices(),
+                                Hours = course.TryGetProperty("hours", out var hours) ? hours.GetString() : null,
+                                LikesInProcent = course.TryGetProperty("likesInProcent", out var likesInProcent) ? likesInProcent.GetString() : null,
+                                Likes = course.TryGetProperty("likes", out var likes) ? likes.GetString() : null
+                            })
+                        .ToList()
+                        .ToArray();
+                }
+                else
+                {
+                    errorMessage = "Data format error: 'getCourses' property not found.";
+                }
+            }
+            else
+            {
+                errorMessage = $"Error: {response.StatusCode}";
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error Content: {errorContent}");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    public class CourseModel
+    {
+        public string? Id { get; set; }
+        public string? ImageUri { get; set; }
+        public bool IsBestseller { get; set; }
+        public string[]? Categories { get; set; }
+        public string? Title { get; set; }
+        public List<Author>? Authors { get; set; }
+        public Prices? Prices { get; set; }
+        public string? Hours { get; set; }
+        public string? LikesInProcent { get; set; }
+        public string? Likes { get; set; }
+    }
+
+    public class Author
+    {
+        public string? Name { get; set; }
+    }
+
+    public class Prices
+    {
+        public string? Currency { get; set; }
+        public decimal Price { get; set; }
+        public decimal Discount { get; set; }
+    }
+
+    public class GraphQLQuery
+    {
+        public string Query { get; set; } = null!;
+    }
+
+    public class DynamicGraphQLResponse
+    {
+        [JsonPropertyName("data")]
+        public JsonElement Data { get; set; }
+    }
+}
