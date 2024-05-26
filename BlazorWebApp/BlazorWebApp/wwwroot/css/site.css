@@ -797,6 +797,7 @@ section.feature .container .feature-box #box-6 {
 }
 #signin .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -813,6 +814,7 @@ section.feature .container .feature-box #box-6 {
 }
 #signin .container form {
   padding: 1rem;
+  border-bottom: 1px solid #ccc;
 }
 #signin .container form .content {
   display: grid;
@@ -837,20 +839,37 @@ section.feature .container .feature-box #box-6 {
   grid-area: forgot;
   margin: 1rem 0 0 0;
   text-align: center;
+  color: #6366F1;
 }
 #signin .container form .content #form-invalid {
   grid-area: invalid;
 }
-#signin .container form .content hr {
-  grid-area: hr;
+#signin .container .signin-social {
+  margin-top: 1rem;
+  text-align: center;
+  /*            .signin-google {
+                  background-color: #db4437;
+                  color: white;
+
+                  &:hover {
+                      background-color: #c33c2e;
+                  }
+              }
+
+              .signin-facebook {
+                  background-color: #3b5998;
+                  color: white;
+
+                  &:hover {
+                      background-color: #334d84;
+                  }
+              }*/
 }
-#signin .container form .content #external-signin {
-  grid-area: external;
-  display: flex;
-  gap: 1rem;
+#signin .container .signin-social h6 {
+  margin-bottom: 1rem;
 }
-#signin .container form .content #external-signin a {
-  flex: 1;
+#signin .container .signin-social .btn-gray {
+  display: inline-block;
 }
 
 section.managework .container {
