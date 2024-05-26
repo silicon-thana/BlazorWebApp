@@ -1,0 +1,76 @@
+﻿@page "/contact"
+
+<PageTitle>Contact</PageTitle>
+
+<section class="contact">
+    <div class="container">
+
+        <div class="left-side">
+            <div class="breadcrumb">
+                <i class="fa-solid fa-house"></i>
+                <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                <i class="fa-solid fa-angles-right"></i>
+                <NavLink ActiveClass="active" href="/signin" Match="NavLinkMatch.All">Sign In</NavLink>
+            </div>
+            <h1>Contact Us</h1>
+            <div class="info">
+                <div class="box">
+                    <div class="icon">
+                        <i class="fa-regular fa-envelope"></i>
+                    </div>
+                    <div class="text">
+                        <h4>Email us</h4>
+                        <p>Please feel free to drop us a line. We will respond as soon as possible.</p>
+                        <a href="">Leave a message <i class="fa-regular fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="icon">
+                        <i class="fa-regular fa-user-plus"></i>
+                    </div>
+                    <div class="text">
+                        <h4>Careers</h4>
+                        <p>Sit ac ipsum leo lorem magna nunc mattis maecenas non vestibulum.</p>
+                        <a href="">Send an application <i class="fa-regular fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="contact-form">
+            <EditForm id="contactRequest" class="row g-4" novalidate>
+                <h2>Get In Contact With Us</h2>
+                <div class="col-12">
+                    <label for="fullname" class="form-label">Full name</label>
+                    <input type="text" id="fullname" name="fullname" class="form-control" placeholder="Enter your full name">
+                </div>
+                <div class="col-12">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email address">
+                </div>
+                <div class="col-12">
+                    <label for="selectService" class="form-label">Service <span>(optional)</span></label>
+                    <select id="selectService" class="form-select">
+                        <option selected>Choose the service you are interested in</option>
+                        <option value="1">Product</option>
+                        <option value="2">Course</option>
+                        <option value="3">Other</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label for="bio" class="form-label">Message</label>
+                    <textarea name="bio" id="bio" class="form-control" cols="30" rows="8" placeholder="Enter your message here..."></textarea>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn-theme">Send Contact Request</button>
+                </div>
+            </EditForm>
+        </div>
+        <img src="/img/map.svg" alt="">
+    </div>
+
+</section>
+
+@code {
+
+}
