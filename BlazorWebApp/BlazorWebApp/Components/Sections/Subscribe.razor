@@ -2,9 +2,6 @@
 @using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
 
-
-
-
 <section class="subscribe">
     <div class="container">
         <div class="content">
@@ -18,7 +15,7 @@
 
         <div class="subscribe-form">
             <EditForm FormName="subscribeform" Model="SubscribeForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
-                <DataAnnotationsValidator/>
+                <DataAnnotationsValidator />
                 <div class="alternative">
                     <div class="option">
 
@@ -69,15 +66,9 @@
                 </div>
                 <ValidationMessage For="@(() => SubscribeForm.Email)" class="field-validation-error" />
                 <span class="status-message">@StatusMessage</span>
-
-                 
-@*                 {
-                    <span class="status-message">* Yes, I agreee to the <a>terms</a> and <a>privacy policy</a>.</span>
+                @*                 {
+                <span class="status-message">* Yes, I agreee to the <a>terms</a> and <a>privacy policy</a>.</span>
                 } *@
-
-
-
-
             </EditForm>
         </div>
     </div>
