@@ -1,0 +1,79 @@
+﻿@page "/courselist"
+@using System.Text.Json.Serialization
+@inject HttpClient Http
+
+<h3>Course List</h3>
+@if (courses == null)
+{
+    <p>Loading...</p>
+}
+else if (!courses.Any())
+{
+    <p>No courses available.</p>
+}
+else
+{
+    <ul>
+        @foreach (var course in courses)
+        {
+            <li>
+                <a href="@($"/course/{course.Id}")">@course.Title</a>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Course>? courses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var query = new
+            {
+                query = @"
+                {
+                    getCourses {
+                        id
+                        title
+                    }
+                }"
+            };
+
+            var response = await Http.PostAsJsonAsync("https://courseprovider-silicon-thanakorn.azurewebsites.net/api/graphql?code=t-uUZAYLh4S-n5ibPELeB66J327bj1C17cBG_leWlJKIAzFuL5TYxA%3D%3D", query);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<GraphQLResponse<CourseListData>>();
+                courses = result?.Data?.GetCourses;
+            }
+            else
+            {
+                Console.WriteLine($"Error: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    public class GraphQLResponse<T>
+    {
+        public T Data { get; set; }
+    }
+
+    public class CourseListData
+    {
+        [JsonPropertyName("getCourses")]
+        public List<Course> GetCourses { get; set; }
+    }
+
+    public class Course
+    {
+        public string? Id { get; set; }
+        public string? Title { get; set; }
+    }
+}
+
