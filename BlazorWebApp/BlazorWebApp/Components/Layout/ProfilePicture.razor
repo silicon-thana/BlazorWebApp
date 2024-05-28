@@ -1,50 +1,61 @@
-﻿@* @using BlazorWebApp.Data
+﻿@using BlazorWebApp.Data
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 @inject HttpClient Http
 @inject UserManager<ApplicationUser> UserManager
-
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <section class="account-profile">
     <div class="profile">
         <div class="profile-image">
-            <img src="/images/uploads/profiles/@user.ProfileImg" alt="@user.FirstName @user.LastName" />
+            <img src="/images/uploads/profiles/@User?.ProfileImg" alt="@User?.FirstName @User?.LastName" />
             <EditForm Model="@uploadModel" OnValidSubmit="HandleProfileUpload">
                 <InputFile id="fileUploader" OnChange="HandleFileSelected" />
-                <Label for="fileUploader" class="btn btn-circle btn-sm">
-                    <i class="fa-regular fa-refresh"></i>
-                </Label>
+                <label class="btn btn-circle btn-sm">
+                    <i class="fa-sharp fa-regular fa-arrows-rotate"></i>
+                </label>
             </EditForm>
-        </div>
-        <div class="profile-info">
-            <h3 class="displayname">@user.FirstName @user.LastName</h3>
-            <p>@user.Email</p>
         </div>
     </div>
 </section>
 
-
-
 @code {
-    private ApplicationUser user = default!;
-    private IBrowserFile selectedFile;
+    [Parameter]
+    public ApplicationUser? User { get; set; }
+    private FileUploadModel uploadModel = new FileUploadModel();
+    private IBrowserFile? selectedFile;
 
-    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    protected override async Task OnInitializedAsync()
+    {
+        if (User == null)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userIdentity = authState.User;
+
+            if (userIdentity.Identity.IsAuthenticated)
+            {
+                var userId = userIdentity.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (userId != null)
+                {
+                    User = await UserManager.FindByIdAsync(userId);
+                }
+            }
+        }
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
     {
         selectedFile = e.File;
     }
 
     private async Task HandleProfileUpload()
     {
-        if (selectedFile == null)
-        {
-            // Display an error message
-            return;
-        }
-
-        try
+        if (selectedFile != null && User != null)
         {
             var content = new MultipartFormDataContent();
-            var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10)); // Set max allowed size to 10MB
+            var fileContent = new StreamContent(selectedFile.OpenReadStream(selectedFile.Size));
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
             content.Add(fileContent, "file", selectedFile.Name);
 
@@ -52,47 +63,20 @@
 
             if (response.IsSuccessStatusCode)
             {
-                var fileUrl = await response.Content.ReadAsStringAsync();
-                if (user != null)
-                {
-                    user.ProfileImg = fileUrl;
-
-                    var updateResult = await UserManager.UpdateAsync(user);
-                    if (updateResult.Succeeded)
-                    {
-                        // Refresh the user information
-                        await RefreshUserData();
-                        StateHasChanged();
-                    }
-                    else
-                    {
-                        // Log the error
-                        Console.WriteLine("Failed to update user profile image.");
-                    }
-                }
+                var newImageUrl = await response.Content.ReadAsStringAsync();
+                User.ProfileImg = newImageUrl;
+                await UserManager.UpdateAsync(User);
+                Navigation.NavigateTo("/Account/Details", true);
             }
             else
             {
-                // Log the response for further analysis
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Error uploading file: {response.StatusCode}, {errorContent}");
+                // Handle error
             }
-        }
-        catch (Exception ex)
-        {
-            // Handle the exception (e.g., display a message)
-            Console.WriteLine($"Exception occurred: {ex.Message}");
         }
     }
 
-    private async Task RefreshUserData()
+    public class FileUploadModel
     {
-        // Assuming you have a method to fetch the updated user data
-        var updatedUser = await UserManager.FindByIdAsync(user.Id);
-        if (updatedUser != null)
-        {
-            user = updatedUser;
-        }
+        // Add any properties needed for the form, if necessary
     }
 }
- *@

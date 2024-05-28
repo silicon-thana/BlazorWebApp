@@ -3,14 +3,13 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
-
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
+@using BlazorWebApp.Services
+@inject UserService UserService
 
 <PageTitle>Profile</PageTitle>
 <section id="account-details" class="account">
     <div class="container">
-        <ManageNavMenu User="user"/>
+        <ManageNavMenu User="user" />
         <div class="details">
             <section class="basic-info">
                 <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
@@ -24,12 +23,12 @@
                             <ValidationMessage For="() => Input.FirstName" class="text-danger" />
                         </div>
                         <div id="form-lastname" class="input-group">
-                            <InputText @bind-Value="Input.LastName"  placeholder="Enter your last name" />
+                            <InputText @bind-Value="Input.LastName" placeholder="Enter your last name" />
                             <label for="FirstName">Lastname</label>
                             <ValidationMessage For="() => Input.LastName" class="text-danger" />
                         </div>
                         <div id="form-email" class="input-group">
-                            <InputText @bind-Value="Input.Email"  placeholder=@user />
+                            <InputText @bind-Value="Input.Email" placeholder=@user />
                             <label for="FirstName">Email</label>
                             <ValidationMessage For="() => Input.Email" class="text-danger" />
                         </div>
@@ -90,25 +89,21 @@
 </section>
 
 @code {
-    private ApplicationUser user = default!;
+    private ApplicationUser user = new ApplicationUser();
     private string? username;
     private string? phoneNumber;
 
     [SupplyParameterFromQuery]
     private string? StatusMessage { get; set; }
 
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
-    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
-    [SupplyParameterFromForm]
     private AddressInputModel AddressInput { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserManager.GetUserAsync(HttpContext.User) ?? new ApplicationUser();
-        username = await UserManager.GetUserNameAsync(user);
-        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        user = await UserService.GetCurrentUserAsync() ?? new ApplicationUser();
+        username = await UserService.GetUserNameAsync(user);
+        phoneNumber = await UserService.GetPhoneNumberAsync(user);
 
         Input.FirstName = user.FirstName;
         Input.LastName = user.LastName;
@@ -116,7 +111,6 @@
         Input.PhoneNumber = phoneNumber;
         Input.Biography = user.Biography;
 
-        // Ensure Address is not null before accessing its properties
         AddressInput.AddressLine1 = user.Address?.AddressLine_1 ?? string.Empty;
         AddressInput.AddressLine2 = user.Address?.AddressLine_2 ?? string.Empty;
         AddressInput.PostalCode = user.Address?.PostalCode ?? string.Empty;
@@ -127,10 +121,9 @@
     {
         if (Input.PhoneNumber != phoneNumber)
         {
-            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            var setPhoneResult = await UserService.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!setPhoneResult.Succeeded)
             {
-                // Handle the error (e.g., display a message)
                 return;
             }
         }
@@ -140,20 +133,13 @@
         user.Email = Input.Email ?? user.Email;
         user.Biography = Input.Biography ?? user.Biography;
 
-        var updateResult = await UserManager.UpdateAsync(user);
-        if (updateResult.Succeeded)
-        {
-            await SignInManager.RefreshSignInAsync(user);
-            // Redirect or notify success
-        }
-        else
-        {
-            // Handle the error (e.g., display a message)
-        }
+        await UserService.UpdateUserAsync(user);
+        await UserService.RefreshSignInAsync(user);
+        // Redirect or notify success
     }
+
     private async Task OnValidSubmitAddressAsync()
     {
-        // Ensure Address object is not null
         if (user.Address == null)
         {
             user.Address = new AddressEntity();
@@ -164,16 +150,9 @@
         user.Address.PostalCode = AddressInput.PostalCode ?? user.Address.PostalCode;
         user.Address.City = AddressInput.City ?? user.Address.City;
 
-        var updateResult = await UserManager.UpdateAsync(user);
-        if (updateResult.Succeeded)
-        {
-            await SignInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your address has been updated";
-        }
-        else
-        {
-            StatusMessage = "Unexpected error when trying to update your address.";
-        }
+        await UserService.UpdateUserAsync(user);
+        await UserService.RefreshSignInAsync(user);
+        StatusMessage = "Your address has been updated";
     }
 
     private sealed class InputModel

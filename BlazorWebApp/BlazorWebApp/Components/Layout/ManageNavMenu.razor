@@ -1,38 +1,85 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using BlazorWebApp.Data
-
-@rendermode InteractiveServer 
-
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+﻿@using BlazorWebApp.Data
+@using BlazorWebApp.Services
+@using System.Net.Http.Headers
+@inject UserService UserService
 @inject NavigationManager NavigationManager
-@inject HttpClient HttpClient
+@inject HttpClient Http
+@inject ILogger<ManageNavMenu> Logger
+
+@rendermode InteractiveServer
 
 <aside>
     <div class="profile-info">
-        <div>
-            <ProfilePicture/>
+        <div class="profile-img">
+            <img src="@User?.ProfileImg" alt="@User?.FirstName @User?.LastName" />
+            <EditForm Model="@uploadModel" OnValidSubmit="HandleProfileUpload">
+                <InputFile id="fileUploader" OnChange="HandleFileSelected" />
+                <label for="fileUploader" class="btn btn-circle btn-circle-sm">
+                    <i class="fa-regular fa-refresh"></i>
+                </label>
+            </EditForm>
         </div>
         <h3>@User?.FirstName @User?.LastName</h3>
         <p>@User?.Email</p>
     </div>
     <nav>
-        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
+        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s">Account Details</NavLink>
         <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
         <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>
         <button class="btn-transparent" @onclick="SignOut">Sign Out</button>
     </nav>
 </aside>
 
+
 @code {
     [Parameter]
-    public ApplicationUser? User { get; set; }
+    public ApplicationUser User { get; set; } = default!;
 
-    private async Task SignOut()
+    private MultipartFormDataContent uploadModel = new MultipartFormDataContent();
+    private IBrowserFile? selectedFile;
+
+    protected override async Task OnInitializedAsync()
     {
-        await SignInManager.SignOutAsync();
-        // Redirect to home page or login page after sign out
-        NavigationManager.NavigateTo("/"); // Change this to the appropriate redirect URL
+        User = await UserService.GetCurrentUserAsync() ?? new ApplicationUser();
     }
-  
+
+    private void SignOut()
+    {
+        try
+        {
+            UserService.SignOut();
+            NavigationManager.NavigateTo("/", forceLoad: true); // Force a reload to ensure proper state
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An error occurred while signing out.");
+            // Optionally, display an error message to the user
+        }
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    public async Task HandleProfileUpload()
+    {
+        if (selectedFile != null)
+        {
+            using var content = new MultipartFormDataContent();
+            var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 15)); // Max 15MB
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(selectedFile.ContentType);
+            content.Add(fileContent, "file", selectedFile.Name);
+
+            var response = await Http.PostAsync("https://fileprovider-win23jsbackend-hansml.azurewebsites.net/api/upload", content);
+            if (response.IsSuccessStatusCode)
+            {
+                // Handle success
+            }
+            else
+            {
+                // Handle failure
+            }
+        }
+    }
 }
