@@ -1,37 +1,38 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
 
-@inject SignInManager<ApplicationUser> SignInManager
+@rendermode InteractiveServer 
 
-<ul class="nav nav-pills flex-column">
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profile</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/Email">Email</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/ChangePassword">Password</NavLink>
-    </li>
-    @if (hasExternalLogins)
-    {
-        <li class="nav-item">
-            <NavLink class="nav-link" href="Account/Manage/ExternalLogins">External logins</NavLink>
-        </li>
-    }
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/TwoFactorAuthentication">Two-factor authentication</NavLink>
-    </li>
-    <li class="nav-item">
-        <NavLink class="nav-link" href="Account/Manage/PersonalData">Personal data</NavLink>
-    </li>
-</ul>
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<aside>
+    <div class="profile-info">
+        <div>
+            <ProfilePicture/>
+        </div>
+        <h3>@User?.FirstName @User?.LastName</h3>
+        <p>@User?.Email</p>
+    </div>
+    <nav>
+        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
+        <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
+        <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>
+        <button class="btn-transparent" @onclick="SignOut">Sign Out</button>
+    </nav>
+</aside>
 
 @code {
-    private bool hasExternalLogins;
+    [Parameter]
+    public ApplicationUser? User { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    private async Task SignOut()
     {
-        hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+        await SignInManager.SignOutAsync();
+        // Redirect to home page or login page after sign out
+        NavigationManager.NavigateTo("/"); // Change this to the appropriate redirect URL
     }
+  
 }

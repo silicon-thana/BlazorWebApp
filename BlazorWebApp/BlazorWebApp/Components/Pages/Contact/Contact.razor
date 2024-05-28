@@ -1,0 +1,136 @@
+﻿@page "/contact"
+@using System.ComponentModel.DataAnnotations
+@using BlazorWebApp.Data
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@rendermode InteractiveServer
+
+<PageTitle>Contact</PageTitle>
+
+<section class="contact">
+    <div class="container">
+
+        <div class="left-side">
+            <div class="breadcrumb">
+                <i class="fa-solid fa-house"></i>
+                <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                <i class="fa-solid fa-angles-right"></i>
+                <NavLink ActiveClass="active" href="/contact" Match="NavLinkMatch.All">Contact</NavLink>
+            </div>
+            <h1>Contact Us</h1>
+            <div class="info">
+                <div class="box">
+                    <div class="icon">
+                        <i class="fa-regular fa-envelope"></i>
+                    </div>
+                    <div class="text">
+                        <h4>Email us</h4>
+                        <p>Please feel free to drop us a line. We will respond as soon as possible.</p>
+                        <a href="">Leave a message <i class="fa-regular fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="icon">
+                        <i class="fa-regular fa-user-plus"></i>
+                    </div>
+                    <div class="text">
+                        <h4>Careers</h4>
+                        <p>Sit ac ipsum leo lorem magna nunc mattis maecenas non vestibulum.</p>
+                        <a href="">Send an application <i class="fa-regular fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="contact-form">
+            <EditForm id="contactRequest" class="row g-4" Model="@Input" method="post" OnValidSubmit="OnValidSubmitAsync" FormName="contactRequest" novalidate>
+                <DataAnnotationsValidator />
+                <h2>Get In Contact With Us</h2>
+                <div class="col-12">
+                    <label for="fullname" class="form-label">Full name</label>
+                    <InputText id="fullname" name="fullname" class="form-control" placeholder="Enter your full name" @bind-Value="Input.Fullname" />
+                    <ValidationMessage For="() => Input.Fullname" class="text-danger" />
+                </div>
+                <div class="col-12">
+                    <label for="email" class="form-label">Email address</label>
+                    <InputText id="email" name="email" type="email" class="form-control" placeholder="Enter your email address" @bind-Value="Input.Email" />
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
+                <div class="col-12">
+                    <label for="selectService" class="form-label">Service <span>(optional)</span></label>
+                    <InputSelect id="selectService" class="form-select" @bind-Value="Input.Service">
+                        <option value="">Choose the service you are interested in</option>
+                        <option value="1">Product</option>
+                        <option value="2">Course</option>
+                        <option value="3">Other</option>
+                    </InputSelect>
+                </div>
+                <div class="col-12">
+                    <label for="bio" class="form-label">Message</label>
+                    <InputTextArea id="bio" name="bio" class="form-control" cols="30" rows="8" placeholder="Enter your message here..." @bind-Value="Input.Message"></InputTextArea>
+                    <ValidationMessage For="() => Input.Message" class="text-danger" />
+                </div>
+                @if (!string.IsNullOrEmpty(StatusMessage))
+                {
+                    <div class="alert alert-success">@StatusMessage</div>
+                }
+                <div class="col-auto">
+                    <button type="submit" class="btn-theme">Send Contact Request</button>
+                </div>
+
+            </EditForm>
+        </div>
+        <img src="/img/map.svg" alt="">
+    </div>
+
+</section>
+
+@code {
+
+    private string? StatusMessage { get; set; }
+    private InputModel Input { get; set; } = new();
+
+    public async Task OnValidSubmitAsync()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://contactprovider-silicon-thanakorn.azurewebsites.net/api/ContactRequestSender?code=YaDMxgEPMP_BKLnGtXM2qGsiA1NDLRGJl99KoO6X84BnAzFuIDdWBg%3D%3D", Input);
+
+            if (response.IsSuccessStatusCode)
+            {
+                StatusMessage = "A contact request was sent!";
+                Input = new InputModel();
+            }
+            else
+            {
+                StatusMessage = "Failed to send contact request.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "Full name", Order = 0)]
+        [MinLength(2, ErrorMessage = "You must enter a valid name")]
+        public string Fullname { get; set; } = null!;
+
+        [Required]
+        [EmailAddress]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address")]
+        [Display(Name = "Email", Order = 1)]
+        public string Email { get; set; } = "";
+
+        [Display(Name = "Service", Order = 2)]
+        public int? Service { get; set; }
+
+        [Display(Name = "Message", Order = 3)]
+        [Required(ErrorMessage = "Message is required")]
+        [MinLength(10, ErrorMessage = "Message should be at least 10 characters long")]
+        public string Message { get; set; } = "";
+    }
+}

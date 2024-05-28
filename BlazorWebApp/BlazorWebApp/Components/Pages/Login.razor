@@ -11,52 +11,73 @@
 
 <PageTitle>Log in</PageTitle>
 
-<h1>Log in</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
-                <DataAnnotationsValidator />
-                <h2>Use a local account to log in.</h2>
-                <hr />
+<section id="signin">
+    <div class="container">
+
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i>
+            <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <i class="fa-solid fa-angles-right"></i>
+            <NavLink ActiveClass="active" href="/signin" Match="NavLinkMatch.All">Sign In</NavLink>
+        </div>
+
+         <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
+            <h1>Welcome Back</h1>
+            <p>Don't have an account yet? <a href="/signup" >Sign up here</a>.</p>
+            <div class="content">
+
+                @if (!string.IsNullOrEmpty(@StatusMessage))
+                {
+                    <div class="alert alert-danger">
+                        @StatusMessage
+                    </div>
+                }
                 <ValidationSummary class="text-danger" role="alert" />
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label for="email" class="form-label">Email</label>
+                <div id="form-email" class="input-group">
+                    <label>Email</label>
                     <ValidationMessage For="() => Input.Email" class="text-danger" />
+                    <InputText @bind-Value="Input.Email" autocomplete="email" aria-required="true" placeholder="Enter your email address" />
                 </div>
-                <div class="form-floating mb-3">
-                    <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label for="password" class="form-label">Password</label>
+                <div id="form-password" class="input-group">
+                    <label>Password</label>
+                    <InputText type="password" @bind-Value="Input.Password" autocomplete="current-password" aria-required="true" placeholder="********" />
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                        Remember me
-                    </label>
+                <div id="form-remember" class="checkbox">
+                    <div class="checkbox-group">
+                        <label>
+                            <InputCheckbox @bind-Value="Input.RememberMe" />
+                            Remember me
+                        </label>
+                    </div>
                 </div>
-                <div>
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a href="Account/ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a href="Account/ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </EditForm>
-        </section>
+                <button id="form-submit" class="btn-theme-s" type="submit">Sign In</button>
+                <button id="form-forgotpassword" class="btn" href="/forgot-password">Forgot your password?</button>
+            </div>
+        </EditForm>
+
+        <div class="signin-social">
+            <div>
+                <h6>Or sign in with your social network</h6>
+            </div>
+            <div class="social-button">
+                <button class="btn-gray">
+                    <i class="fa-brands fa-google"></i>
+                    Google
+                </button>
+                <button class="btn-gray">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    Facebook
+                </button>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 @code {
-    private string? errorMessage { get; set; }
+    [SupplyParameterFromQuery]
+    private string? StatusMessage { get; set; }
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
@@ -86,7 +107,7 @@
         }
         else
         {
-            errorMessage = "Error: Invalid login attempt.";
+            StatusMessage = "Invalid email or password.";
         }
     }
 
