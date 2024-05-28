@@ -1329,6 +1329,55 @@ section.integrate .container .content p {
   }
 }
 
+section.courses .container .header-courses {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "h1 h1 category search";
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+section.courses .container .header-courses h1 {
+  grid-area: h1;
+}
+@media (max-width: 992px) {
+  section.courses .container .header-courses h1 {
+    display: none;
+  }
+}
+section.courses .container .header-courses .categorylist {
+  grid-area: category;
+  border: 1px solid #DAD9D3;
+  padding: 8px;
+  border-radius: 15px;
+  margin-right: 20px;
+}
+@media (max-width: 768px) {
+  section.courses .container .header-courses .categorylist {
+    display: none;
+  }
+}
+section.courses .container .header-courses .categorylist form select {
+  color: #191919;
+  text-decoration: none;
+  outline: none;
+  border: transparent;
+  margin-right: 50px;
+}
+section.courses .container .header-courses .search-form {
+  grid-area: search;
+  border: 1px solid #DAD9D3;
+  padding: 8px;
+  border-radius: 15px;
+}
+section.courses .container .header-courses .search-form form input {
+  color: #191919;
+  text-decoration: none;
+  outline: none;
+  border: transparent;
+  margin-right: 50px;
+}
 section.courses .container .course-content {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
