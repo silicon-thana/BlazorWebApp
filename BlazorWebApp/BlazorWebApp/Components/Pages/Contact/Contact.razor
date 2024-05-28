@@ -94,7 +94,7 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("https://contactprovider-silicon-thanakorn.azurewebsites.net/api/ContactRequestSender?code=YaDMxgEPMP_BKLnGtXM2qGsiA1NDLRGJl99KoO6X84BnAzFuIDdWBg%3D%3D", Input);
+            var response = await Http.PostAsJsonAsync(Environment.GetEnvironmentVariable("Contact_Request_API"), Input);
 
             if (response.IsSuccessStatusCode)
             {
