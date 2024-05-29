@@ -3,9 +3,14 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
 
 <PageTitle>Profile</PageTitle>
 <section id="account-details" class="account">
@@ -13,7 +18,7 @@
         <ManageNavMenu User="user"/>
         <div class="details">
             <section class="basic-info">
-                <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+                <EditForm EditContext="InputEditContext" FormName="userinfo" OnValidSubmit="() => OnValidSubmitAsync(InputEditContext)">
                     <DataAnnotationsValidator />
                     <h2>Account Info</h2>
                     <h5>Basic Info</h5>
@@ -43,17 +48,17 @@
                             <label for="FirstName">Biography</label>
                             <ValidationMessage For="() => Input.Biography" class="text-danger" />
                         </div>
-
                         <div class="form-buttons">
                             <button class="btn-gray" type="reset">Cancel</button>
                             <button class="btn-theme" type="submit">Save Changes</button>
                         </div>
                     </div>
                 </EditForm>
+                @StatusMessage
             </section>
             <hr />
             <section class="adress-info">
-                <EditForm Model="AddressInput" FormName="address" OnValidSubmit="OnValidSubmitAddressAsync" method="post" novalidate>
+@*                 <EditForm EditContext="AddressEditContext" FormName="addressinfo" OnValidSubmit="() => OnValidSubmitAddressAsync(AddressEditContext)">
                     <DataAnnotationsValidator />
                     <h5>Address</h5>
                     <div class="content">
@@ -82,97 +87,125 @@
                             <button class="btn-theme" type="submit">Save Changes</button>
                         </div>
                     </div>
-                </EditForm>
-
+                </EditForm> *@
             </section>
         </div>
     </div>
 </section>
 
 @code {
-    private ApplicationUser user = default!;
-    private string? username;
-    private string? phoneNumber;
+    private ApplicationUser user = new();
 
-    [SupplyParameterFromQuery]
-    private string? StatusMessage { get; set; }
+    [Parameter]
+    public string? StatusMessage { get; set; }
 
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
-    [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
-    [SupplyParameterFromForm]
     private AddressInputModel AddressInput { get; set; } = new();
+    private EditContext InputEditContext { get; set; }
+    private EditContext AddressEditContext { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserManager.GetUserAsync(HttpContext.User) ?? new ApplicationUser();
-        username = await UserManager.GetUserNameAsync(user);
-        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        // Initialize EditContexts
+        InputEditContext = new EditContext(Input);
+        AddressEditContext = new EditContext(AddressInput);
 
-        Input.FirstName = user.FirstName;
-        Input.LastName = user.LastName;
-        Input.Email = user.Email;
-        Input.PhoneNumber = phoneNumber;
-        Input.Biography = user.Biography;
+        // Load the user information
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = authState.User;
 
-        // Ensure Address is not null before accessing its properties
-        AddressInput.AddressLine1 = user.Address?.AddressLine_1 ?? string.Empty;
-        AddressInput.AddressLine2 = user.Address?.AddressLine_2 ?? string.Empty;
-        AddressInput.PostalCode = user.Address?.PostalCode ?? string.Empty;
-        AddressInput.City = user.Address?.City ?? string.Empty;
-    }
-
-    private async Task OnValidSubmitAsync()
-    {
-        if (Input.PhoneNumber != phoneNumber)
+        if (userIdentity.Identity.IsAuthenticated)
         {
-            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
+            var userId = UserManager.GetUserId(userIdentity);
+            user = await UserManager.FindByIdAsync(userId);
+            if (user != null)
             {
-                // Handle the error (e.g., display a message)
-                return;
+                Input = new InputModel
+                    {
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        PhoneNumber = user.PhoneNumber,
+                        Biography = user.Biography
+                    };
+
+                AddressInput = new AddressInputModel
+                    {
+                        AddressLine1 = user.Address?.AddressLine_1,
+                        AddressLine2 = user.Address?.AddressLine_2,
+                        PostalCode = user.Address?.PostalCode,
+                        City = user.Address?.City
+                    };
+                // Update EditContexts with new models
+                InputEditContext = new EditContext(Input);
+                AddressEditContext = new EditContext(AddressInput);
             }
         }
-
-        user.FirstName = Input.FirstName ?? user.FirstName;
-        user.LastName = Input.LastName ?? user.LastName;
-        user.Email = Input.Email ?? user.Email;
-        user.Biography = Input.Biography ?? user.Biography;
-
-        var updateResult = await UserManager.UpdateAsync(user);
-        if (updateResult.Succeeded)
-        {
-            await SignInManager.RefreshSignInAsync(user);
-            // Redirect or notify success
-        }
         else
         {
-            // Handle the error (e.g., display a message)
+            NavigationManager.NavigateTo("/signin", true);
         }
     }
-    private async Task OnValidSubmitAddressAsync()
+
+    private async Task OnValidSubmitAsync(EditContext editContext)
     {
-        // Ensure Address object is not null
-        if (user.Address == null)
+        if (user != null && editContext.Validate())
         {
-            user.Address = new AddressEntity();
-        }
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+            user.Email = Input.Email;
+            user.PhoneNumber = Input.PhoneNumber;
+            user.Biography = Input.Biography;
 
-        user.Address.AddressLine_1 = AddressInput.AddressLine1 ?? user.Address.AddressLine_1;
-        user.Address.AddressLine_2 = AddressInput.AddressLine2;
-        user.Address.PostalCode = AddressInput.PostalCode ?? user.Address.PostalCode;
-        user.Address.City = AddressInput.City ?? user.Address.City;
-
-        var updateResult = await UserManager.UpdateAsync(user);
-        if (updateResult.Succeeded)
-        {
-            await SignInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your address has been updated";
+            var result = await UserManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                StatusMessage = "Your profile has been updated";
+                // Optionally, sign in the user again to update the claims
+                await SignInManager.RefreshSignInAsync(user);
+            }
+            else
+            {
+                StatusMessage = "Unexpected error when trying to update profile.";
+                LogErrors(result);
+            }
         }
-        else
+    }
+
+    // private async Task OnValidSubmitAddressAsync(EditContext editContext)
+    // {
+    //     if (user != null && editContext.Validate())
+    //     {
+    //         if (user.Address == null)
+    //         {
+    //             user.Address = new Address();
+    //         }
+
+    //         user.Address.AddressLine_1 = AddressInput.AddressLine1;
+    //         user.Address.AddressLine_2 = AddressInput.AddressLine2;
+    //         user.Address.PostalCode = AddressInput.PostalCode;
+    //         user.Address.City = AddressInput.City;
+
+    //         var result = await UserManager.UpdateAsync(user);
+    //         if (result.Succeeded)
+    //         {
+    //             StatusMessage = "Your address has been updated";
+    //             // Optionally, sign in the user again to update the claims
+    //             await SignInManager.RefreshSignInAsync(user);
+    //         }
+    //         else
+    //         {
+    //             StatusMessage = "Unexpected error when trying to update address.";
+    //             LogErrors(result);
+    //         }
+    //     }
+    // }
+
+    private void LogErrors(IdentityResult result)
+    {
+        foreach (var error in result.Errors)
         {
-            StatusMessage = "Unexpected error when trying to update your address.";
+            Console.WriteLine($"Error: {error.Description}");
         }
     }
 
@@ -217,3 +250,5 @@
         public string? City { get; set; }
     }
 }
+
+

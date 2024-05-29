@@ -74,5 +74,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorWebApp.Client._Imports).Assembly);
 
+// Register custom identity endpoints
+app.MapAdditionalIdentityEndpoints();
 
 app.Run();
