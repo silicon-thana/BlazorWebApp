@@ -1,0 +1,17 @@
+﻿@page "/signout"
+@inject NavigationManager NavigationManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<SignOut> Logger
+
+<h3>Signing out...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+
+            await SignInManager.SignOutAsync();
+            Logger.LogInformation("User signed out successfully.");
+            await Task.Delay(500);
+            NavigationManager.NavigateTo("/", true);
+    }
+}
