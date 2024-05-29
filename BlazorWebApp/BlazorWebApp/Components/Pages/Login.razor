@@ -13,10 +13,18 @@
 
 <section id="signin">
     <div class="container">
+
+        <div class="breadcrumb">
+            <i class="fa-solid fa-house"></i>
+            <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <i class="fa-solid fa-angles-right"></i>
+            <NavLink ActiveClass="active" href="/signin" Match="NavLinkMatch.All">Sign In</NavLink>
+        </div>
+
          <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
             <DataAnnotationsValidator />
             <h1>Welcome Back</h1>
-            <p>Don't have an account yet?? <a href="/signup" >Sign up here</a>.</p>
+            <p>Don't have an account yet? <a href="/signup" >Sign up here</a>.</p>
             <div class="content">
 
                 @if (!string.IsNullOrEmpty(@StatusMessage))
@@ -45,7 +53,7 @@
                     </div>
                 </div>
                 <button id="form-submit" class="btn-theme-s" type="submit">Sign In</button>
-                <a id="form-forgotpassword" href="/forgot-password">Forgot your password?</a>
+                <button id="form-forgotpassword" class="btn" href="/forgot-password">Forgot your password?</button>
             </div>
         </EditForm>
 
@@ -53,13 +61,15 @@
             <div>
                 <h6>Or sign in with your social network</h6>
             </div>
-            <div>
-                <a class="btn-gray signin-google">
+            <div class="social-button">
+                <button class="btn-gray">
+                    <i class="fa-brands fa-google"></i>
                     Google
-                </a>
-                <a class="btn-gray signin-facebook">
+                </button>
+                <button class="btn-gray">
+                    <i class="fa-brands fa-facebook-f"></i>
                     Facebook
-                </a>
+                </button>
             </div>
         </div>
     </div>
