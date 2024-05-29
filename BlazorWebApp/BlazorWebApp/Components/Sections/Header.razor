@@ -6,6 +6,7 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
+@rendermode InteractiveServer
 
 <header>
     <div class="container">
@@ -42,7 +43,7 @@
         <div class="account-buttons">
             <AuthorizeView>
                 <Authorized>
-                    <button class="nav-link btn-gray" @onclick="SignOut">
+                    <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
                         <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                     </button>
                     <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
@@ -69,7 +70,7 @@
                 <NavLink class="menu-link" href="/contact">Contact</NavLink>
                 <AuthorizeView>
                     <Authorized>
-                        <button class="nav-link btn-gray" @onclick="SignOut">
+                        <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
                             <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
                         </button>
                         <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
@@ -83,19 +84,13 @@
         </div>
     </div>
 </header>
+
+
 @code {
-    private async Task SignOut()
+
+
+    private void NavigateToSignOut()
     {
-        Console.WriteLine("SignOut method called."); 
-        try
-        {
-            await SignInManager.SignOutAsync();
-            Console.WriteLine("SignOutAsync called."); 
-            NavigationManager.NavigateTo("/");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"SignOut failed: {ex.Message}");
-        }
+        NavigationManager.NavigateTo("/signout");
     }
 }
