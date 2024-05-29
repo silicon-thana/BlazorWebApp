@@ -43,9 +43,9 @@
         <div class="account-buttons">
             <AuthorizeView>
                 <Authorized>
-                    <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
+@*                     <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
                         <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                    </button>
+                    </button> *@
                     <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
                 </Authorized>
                 <NotAuthorized>
@@ -70,9 +70,9 @@
                 <NavLink class="menu-link" href="/contact">Contact</NavLink>
                 <AuthorizeView>
                     <Authorized>
-                        <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
+@*                         <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
                             <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                        </button>
+                        </button> *@
                         <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
                     </Authorized>
                     <NotAuthorized>

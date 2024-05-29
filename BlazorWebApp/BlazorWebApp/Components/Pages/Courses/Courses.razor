@@ -100,7 +100,7 @@
                     Query = @"{ getCourses { id isBestseller title authors { name } categories prices { price discount currency } hours likesInProcent likes imageUri } }"
                 };
 
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, Environment.GetEnvironmentVariable("Course_GetCourse_GraphQL_API"))
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://courseprovider-silicon-thanakorn.azurewebsites.net/api/graphql?code=PM4hag2rE0gh_6oywqUZXEZW0ugeHw_37FxxfAghABi_AzFuYKTQGA%3D%3D")
             {
                     Content = JsonContent.Create(query)
                 };
