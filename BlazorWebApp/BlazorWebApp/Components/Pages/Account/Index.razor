@@ -4,11 +4,13 @@
 @using Microsoft.AspNetCore.Identity
 @using BlazorWebApp.Data
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApplicationDbContext context
 
 @rendermode InteractiveServer
 
@@ -58,7 +60,7 @@
             </section>
             <hr />
             <section class="adress-info">
-@*                 <EditForm EditContext="AddressEditContext" FormName="addressinfo" OnValidSubmit="() => OnValidSubmitAddressAsync(AddressEditContext)">
+                <EditForm Model="AddressInput" FormName="addressinfo" OnValidSubmit="OnValidSubmitAddressAsync">
                     <DataAnnotationsValidator />
                     <h5>Address</h5>
                     <div class="content">
@@ -87,7 +89,7 @@
                             <button class="btn-theme" type="submit">Save Changes</button>
                         </div>
                     </div>
-                </EditForm> *@
+                </EditForm>
             </section>
         </div>
     </div>
@@ -95,6 +97,7 @@
 
 @code {
     private ApplicationUser? user;
+    private string? returnUrl;
 
     [Parameter]
     public string? StatusMessage { get; set; }
@@ -104,8 +107,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadUserAsync();
+    }
+
+    private async Task LoadUserAsync()
+    {
         try
         {
+            returnUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+            NavigationManager.LocationChanged += OnlocationChanged;
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var userIdentity = authState.User;
 
@@ -125,13 +135,20 @@
                             Biography = user.Biography
                         };
 
-                    AddressInput = new AddressInputModel
+                    if (user.AddressId.HasValue)
+                    {
+                        var address = await context.Addresses.FirstOrDefaultAsync(a => a.Id == user.AddressId.Value);
+                        if (address != null)
                         {
-                            AddressLine1 = user.Address?.AddressLine_1,
-                            AddressLine2 = user.Address?.AddressLine_2,
-                            PostalCode = user.Address?.PostalCode,
-                            City = user.Address?.City
-                        };
+                            AddressInput = new AddressInputModel
+                                {
+                                    AddressLine1 = address.AddressLine_1 ?? string.Empty,
+                                    AddressLine2 = address.AddressLine_2 ?? string.Empty,
+                                    PostalCode = address.PostalCode ?? string.Empty,
+                                    City = address.City ?? string.Empty
+                                };
+                        }
+                    }
                 }
             }
             else
@@ -142,8 +159,19 @@
         catch (Exception ex)
         {
             StatusMessage = "An error occurred while loading user information.";
-            Console.WriteLine($"Error in OnInitializedAsync: {ex.Message}");
+            Console.WriteLine($"Error in LoadUserAsync: {ex.Message}");
         }
+    }
+
+    private void OnlocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        returnUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnlocationChanged;
     }
 
     private async Task OnValidSubmitAsync()
@@ -162,6 +190,7 @@
                 if (result.Succeeded)
                 {
                     StatusMessage = "Your profile has been updated.";
+                    await LoadUserAsync(); // Reload user to reflect changes
                 }
                 else
                 {
@@ -174,6 +203,42 @@
         {
             StatusMessage = "An error occurred while updating profile.";
             Console.WriteLine($"Error in OnValidSubmitAsync: {ex.Message}");
+        }
+    }
+
+    private async Task OnValidSubmitAddressAsync()
+    {
+        try
+        {
+            if (user != null)
+            {
+                if (user.Address == null)
+                {
+                    user.Address = new AddressEntity();
+                }
+
+                user.Address.AddressLine_1 = AddressInput.AddressLine1;
+                user.Address.AddressLine_2 = AddressInput.AddressLine2;
+                user.Address.PostalCode = AddressInput.PostalCode;
+                user.Address.City = AddressInput.City;
+
+                var result = await UserManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    StatusMessage = "Your address has been updated.";
+                    await LoadUserAsync(); // Reload user to reflect changes
+                }
+                else
+                {
+                    StatusMessage = "Unexpected error when trying to update address.";
+                    LogErrors(result);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "An error occurred while updating address.";
+            Console.WriteLine($"Error in OnValidSubmitAddressAsync: {ex.Message}");
         }
     }
 

@@ -9,8 +9,6 @@
 @inject HttpClient HttpClient
 @inject ILogger<ManageNavMenu> Logger
 
-@implements IDisposable
-
 <aside>
     <div class="profile-info">
         <div>
@@ -30,31 +28,6 @@
 @code {
     [Parameter]
     public ApplicationUser? User { get; set; }
-    private string? currentUrl;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-            NavigationManager.LocationChanged += OnLocationChange;
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An error occurred during initialization: {Message}", ex.Message);
-        }
-    }
-
-    private void OnLocationChange(object? sender, LocationChangedEventArgs e)
-    {
-        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChange;
-    }
 
     private async Task SignOut()
     {
