@@ -1,25 +1,33 @@
 ﻿@page "/courses"
 @using System.Text.Json.Serialization
 @using System.Text.Json
-@attribute [StreamRendering]
+@using Microsoft.AspNetCore.Authorization
 @inject HttpClient Http
+
+@attribute [StreamRendering]
+@attribute [Authorize]
+
 
 <PageTitle>Courses</PageTitle>
 
 <section class="courses" id="courses">
     <div class="container">
 
-        <div class="header">
+        <div class="header-courses">
             <h1>Courses</h1>
-            <form id="form-filter">
-                <select>
-                    <option>All categories</option>
-                </select>
-                <div class="input-search-group">
-                    <input id="searchQuery" name="searchQuery" placeholder="Search Courses" />
-                    <i class="fa-regular fa-search"></i>
-                </div>
-            </form>
+            <div class="categorylist">
+                <form>
+                    <select>
+                        <option>All categories</option>
+                    </select>
+                </form>
+            </div>
+            <div class="search-form">
+                <form>
+                    <input type="text" placeholder="Search Courses">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </form>
+            </div>
         </div>
         <div class="course-content">
             @if (!string.IsNullOrEmpty(errorMessage))
@@ -38,39 +46,41 @@
             {
                 @foreach (var course in courses)
                 {
-                    <div class="course">
-                        @if (course.IsBestseller)
-                        {
-                            <div class="best-seller">Best Seller</div>
-                        }
-                        <img class="course-img" src="@course.ImageUri" />
-                        <h5 class="course-title">@course.Title</h5>
-                        <div class="content">
-                            <div class="course-author">by @string.Join(", ", course.Authors.Select(a => a.Name))</div>
-                            @if (course.Prices.Discount > 0)
+                    <a href="@($"/course/{course.Id}")">
+                        <div class="course">
+                            @if (course.IsBestseller)
                             {
-                                <div class="course-prices">
-                                    <div class="course-discount">$@course.Prices.Discount</div>
-                                    <div class="course-price-reduced">$@course.Prices.Price</div>
-                                </div>
+                                <div class="best-seller">Best Seller</div>
                             }
-                            else
-                            {
-                                <div class="course-prices">
-                                    <div class="course-price">$@course.Prices.Price</div>
-                                </div>
-                            }
+                            <img class="course-img" src="@course.ImageUri" />
+                            <h5 class="course-title">@course.Title</h5>
+                            <div class="content">
+                                <div class="course-author">by @string.Join(", ", course.Authors.Select(a => a.Name))</div>
+                                @if (course.Prices?.Discount > 0)
+                                {
+                                    <div class="course-prices">
+                                        <div class="course-discount">$@course.Prices.Discount</div>
+                                        <div class="course-price-reduced">$@course.Prices.Price</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="course-prices">
+                                        <div class="course-price">$@course.Prices?.Price</div>
+                                    </div>
+                                }
 
-                            <div class="course-info">
-                                <div class="course-hour"><i class="fa-regular fa-clock"></i>@course.Hours hours</div>
-                                <div class="course-likes">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span>@course.LikesInProcent</span>
-                                    <span>(@course.Likes<span>K</span>)</span>
+                                <div class="course-info">
+                                    <div class="course-hour"><i class="fa-regular fa-clock"></i>@course.Hours hours</div>
+                                    <div class="course-likes">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>@course.LikesInProcent</span>
+                                        <span>(@course.Likes<span>K</span>)</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 }
             }
         </div>
@@ -91,7 +101,7 @@
                 };
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://courseprovider-silicon-thanakorn.azurewebsites.net/api/graphql?code=PM4hag2rE0gh_6oywqUZXEZW0ugeHw_37FxxfAghABi_AzFuYKTQGA%3D%3D")
-                {
+            {
                     Content = JsonContent.Create(query)
                 };
 

@@ -1,13 +1,12 @@
 ﻿ @page "/account/security" 
 
-
+ @rendermode InteractiveServer
 
 <section class="account" id="account-security">
     <div class="container">
         <ManageNavMenu User="user" />
         <div class="details">
             <section class="basic-info">
-
                 <EditForm Model="PasswordChange" OnValidSubmit="ChangePasswordAsync" FormName="changePassword" method="post">
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger" />
@@ -16,12 +15,12 @@
                     <div class="content">
                         <div id="form-oldpassword" class="input-group">
                             <label for="CurrentPassword">Current Password</label>
-                            <InputText @bind-Value="PasswordChange.CurrentPassword" type="password" placeholder="Current Password"/>
+                            <InputText @bind-Value="PasswordChange.CurrentPassword" type="password" placeholder="Current Password" />
                             <ValidationMessage For="() => PasswordChange.CurrentPassword" class="text-danger" />
                         </div>
                         <div id="form-newpassword" class="input-group">
                             <label for="NewPassword">New Password</label>
-                            <InputText @bind-Value="PasswordChange.NewPassword" type="password" placeholder="New Password"/>
+                            <InputText @bind-Value="PasswordChange.NewPassword" type="password" placeholder="New Password" />
                             <ValidationMessage For="() => PasswordChange.NewPassword" class="text-danger" />
                         </div>
                         <div id="form-confirmpassword" class="input-group">
@@ -34,6 +33,10 @@
                             <button class="btn-gray" type="reset">Cancel</button>
                             <button class="btn-theme" type="submit">Save Changes</button>
                         </div>
+                        @if (!string.IsNullOrEmpty(StatusMessage))
+                        {
+                            <div>@StatusMessage</div>
+                        }
                     </div>
                 </EditForm>
             </section>
@@ -57,6 +60,10 @@
                     <div class="form-buttons">
                         <button class="btn-danger" type="submit">Delete</button>
                     </div>
+                    @if (!string.IsNullOrEmpty(StatusMessage))
+                    {
+                        <div>@StatusMessage</div>
+                    }
                 </EditForm>
             </section>
         </div>
@@ -64,56 +71,85 @@
 </section>
 
 @code {
-    private ApplicationUser user = default!;
+    private ApplicationUser user = new ApplicationUser();
 
     private PasswordChangeModel PasswordChange { get; set; } = new PasswordChangeModel();
     private DeleteAccountModel DeleteAccount { get; set; } = new DeleteAccountModel();
 
-    [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private string StatusMessage { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserManager.GetUserAsync(HttpContext.User) ?? new ApplicationUser();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = authState.User;
+
+        if (userIdentity.Identity?.IsAuthenticated == true)
+        {
+            user = await UserManager.GetUserAsync(userIdentity);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/signin", true);
+        }
     }
 
     private async Task ChangePasswordAsync()
     {
+        StatusMessage = string.Empty; // Clear previous status messages
+
+        Console.WriteLine($"Attempting to change password for user: {user.UserName}");
+
         var result = await UserManager.ChangePasswordAsync(user, PasswordChange.CurrentPassword, PasswordChange.NewPassword);
 
         if (result.Succeeded)
         {
-            await SignInManager.RefreshSignInAsync(user);
-            // Optionally, navigate to a confirmation page or display a success message
+            StatusMessage = "Your password has been changed. You will be signed out.";
+
+            // Navigate to the sign-out page
+            NavigationManager.NavigateTo("/signout");
         }
         else
         {
             foreach (var error in result.Errors)
             {
-                // Handle errors (e.g., add error messages to a list to display in the UI)
+                StatusMessage += $"{error.Description} ";
+                Console.WriteLine($"Password change error: {error.Description}");
             }
         }
+
+        StateHasChanged();
     }
 
     private async Task DeleteAccountAsync()
     {
+        StatusMessage = string.Empty; // Clear previous status messages
+
         if (DeleteAccount.ConfirmDelete)
         {
+            Console.WriteLine($"Attempting to delete account for user: {user.UserName}");
+
             var result = await UserManager.DeleteAsync(user);
 
             if (result.Succeeded)
             {
-                await SignInManager.SignOutAsync();
-                NavigationManager.NavigateTo("/"); // Redirect to home page or a confirmation page
+                NavigationManager.NavigateTo("/signout"); // Navigate to the sign-out page
             }
             else
             {
                 foreach (var error in result.Errors)
                 {
-                    // Handle errors (e.g., add error messages to a list to display in the UI)
+                    StatusMessage += $"{error.Description} ";
+                    Console.WriteLine($"Account deletion error: {error.Description}");
                 }
             }
         }
+        else
+        {
+            StatusMessage = "You must confirm the account deletion.";
+            Console.WriteLine("Account deletion not confirmed.");
+        }
+
+        StateHasChanged();
     }
 
     public class PasswordChangeModel

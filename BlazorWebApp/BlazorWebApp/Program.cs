@@ -32,7 +32,13 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
-
+// Configure application cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/signin"; // Path to the login page
+    options.AccessDeniedPath = "/accessdenied"; // Path to the access denied page
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Adjust as necessary
+});
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -69,5 +75,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorWebApp.Client._Imports).Assembly);
 
+// Register custom identity endpoints
+app.MapAdditionalIdentityEndpoints();
 
 app.Run();

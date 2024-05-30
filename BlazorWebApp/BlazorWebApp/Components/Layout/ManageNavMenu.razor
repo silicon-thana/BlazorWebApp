@@ -7,6 +7,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
+@inject ILogger<ManageNavMenu> Logger
 
 <aside>
     <div class="profile-info">
@@ -20,7 +21,7 @@
         <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
         <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
         <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>
-        <button class="btn-transparent" @onclick="SignOut">Sign Out</button>
+        <button class="btn-transparent" @onclick="NavigateToSignOut">Sign Out</button>
     </nav>
 </aside>
 
@@ -28,11 +29,9 @@
     [Parameter]
     public ApplicationUser? User { get; set; }
 
-    private async Task SignOut()
+    private void NavigateToSignOut()
     {
-        await SignInManager.SignOutAsync();
-        // Redirect to home page or login page after sign out
-        NavigationManager.NavigateTo("/"); // Change this to the appropriate redirect URL
+        NavigationManager.NavigateTo("/signout");
     }
-  
 }
+  
