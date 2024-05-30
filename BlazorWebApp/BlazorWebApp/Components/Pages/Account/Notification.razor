@@ -10,11 +10,11 @@
                 <h2>Notifications</h2>
                 <div id="notification-email" class="input-group">
                     <label for="email">Preferred email for notifications</label>
-                    <InputText @bind-Value="Input.Email" type="email" id="email" placeholder="example@gmail.com" />
+                    <InputText @bind-Value="Input.NotificationEmail" type="email" id="email" placeholder="example@gmail.com" />
                 </div>
                 <div class="notification-option">
                     <label class="switch">
-                        <InputCheckbox @bind-Value="Input.isSubscribed" />
+                        <InputCheckbox @bind-Value="Input.IsSubscribed" />
                         <span class="slider round"></span>
                     </label>
                     <div class="notification-label">
@@ -24,7 +24,7 @@
                 </div>
                 <div class="notification-option">
                     <label class="switch">
-                        <InputCheckbox @bind-Value="Input.isDarkTheme" />
+                        <InputCheckbox @bind-Value="Input.IsDarkTheme" />
                         <span class="slider round"></span>
                     </label>
                     <div class="notification-label">
@@ -32,11 +32,11 @@
                         <p>Tortor massa porttitor enim tristique neque fermentum sed.</p>
                     </div>
                 </div>
+                @if (!string.IsNullOrEmpty(StatusMessage))
+                {
+                    <div class="status-message">@StatusMessage</div>
+                }
                 <div class="form-actions">
-                    @if (!string.IsNullOrEmpty(StatusMessage))
-                    {
-                        <div class="status-message">@StatusMessage</div>
-                    }
                     <button type="button" class="btn-gray">Cancel</button>
                     <button type="submit" class="btn-theme">Save changes</button>
                 </div>
@@ -50,7 +50,6 @@
     private InputModel Input { get; set; } = new();
     private string? StatusMessage { get; set; }
 
-
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -61,10 +60,9 @@
             user = await UserManager.GetUserAsync(userIdentity);
             if (user != null)
             {
-                Input.Email = user.Email;
-                Input.isSubscribed = user.IsSubscribed;
-                Input.isDarkTheme = user.IsDarkTheme;
-                // Populate other subscription preferences as needed
+                Input.NotificationEmail = user.NotificationEmail;
+                Input.IsSubscribed = user.IsSubscribed;
+                Input.IsDarkTheme = user.IsDarkTheme;
             }
         }
         else
@@ -77,20 +75,29 @@
     {
         StatusMessage = string.Empty;
 
-        if (!string.IsNullOrEmpty(Input.Email))
+        if (!string.IsNullOrEmpty(Input.NotificationEmail))
         {
-            user.Email = Input.Email;
-            user.IsSubscribed = Input.isSubscribed;
-            user.IsDarkTheme = Input.isDarkTheme;
-            // Update other subscription preferences as needed
+            user.NotificationEmail = Input.NotificationEmail;
+            user.IsSubscribed = Input.IsSubscribed;
+            user.IsDarkTheme = Input.IsDarkTheme;
 
-            await UserManager.UpdateAsync(user);
-
-            if (Input.isSubscribed)
+            var result = await UserManager.UpdateAsync(user);
+            if (result.Succeeded)
             {
-                await SubscribeToNewsletter(Input.Email);
+                if (Input.IsSubscribed)
+                {
+                    await SubscribeToNewsletter(Input.NotificationEmail);
+                }
+                else
+                {
+                    await UnsubscribeFromNewsletter(Input.NotificationEmail);
+                }
+                StatusMessage = "Your preferences have been saved.";
             }
-            StatusMessage = "Your preferences have been saved.";
+            else
+            {
+                StatusMessage = "Failed to save preferences. Please try again.";
+            }
         }
         else
         {
@@ -121,16 +128,39 @@
         }
     }
 
+    private async Task UnsubscribeFromNewsletter(string email)
+    {
+        var url = "https://newsletterprovider-silicon-thanakorn.azurewebsites.net/api/Unsubscribe?code=uQHg-PQZApM4ftXjLvPxoFDHoIRolEMjgvimakpkQEDeAzFuSySTmA%3D%3D";
+        var content = new StringContent($"{{ \"email\": \"{email}\" }}", System.Text.Encoding.UTF8, "application/json");
+
+        try
+        {
+            var response = await Http.PostAsync(url, content);
+            if (response.IsSuccessStatusCode)
+            {
+                StatusMessage = "Successfully unsubscribed from the newsletter!";
+            }
+            else
+            {
+                StatusMessage = "Failed to unsubscribe from the newsletter. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
     private sealed class InputModel
     {
         [Required]
-        [Display(Name = "Email Address")]
-        public string? Email { get; set; }
+        [Display(Name = "Notification Email Address")]
+        public string? NotificationEmail { get; set; }
 
-        [Display(Name = "isSubscribed")]
-        public bool isSubscribed { get; set; }
+        [Display(Name = "IsSubscribed")]
+        public bool IsSubscribed { get; set; }
 
         [Display(Name = "Dark theme")]
-        public bool isDarkTheme { get; set; }
+        public bool IsDarkTheme { get; set; }
     }
 }

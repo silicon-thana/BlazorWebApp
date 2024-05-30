@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
 
 @rendermode InteractiveServer
 
@@ -34,7 +35,7 @@
         <div class="btn-switch">
             <label>Light</label>
             <label class="switch" for="switch-mode">
-                <input type="checkbox" id="switch-mode" />
+                <input type="checkbox" id="switch-mode" @onchange="ToggleDarkMode" />
                 <span class="slider round"></span>
             </label>
             <label>Dark</label>
@@ -43,9 +44,6 @@
         <div class="account-buttons">
             <AuthorizeView>
                 <Authorized>
-@*                     <button class="nav-link btn-gray" @onclick="NavigateToSignOut">
-                        <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
-                    </button> *@
                     <a class="btn-theme" href="/account/details"><i class="fa-regular fa-user"></i><span>My Account</span></a>
                 </Authorized>
                 <NotAuthorized>
@@ -82,12 +80,15 @@
     </div>
 </header>
 
-
 @code {
-
-
     private void NavigateToSignOut()
     {
         NavigationManager.NavigateTo("/signout");
+    }
+
+    private async Task ToggleDarkMode(ChangeEventArgs e)
+    {
+        bool isDark = (bool)e.Value;
+        await JSRuntime.InvokeVoidAsync("setDarkMode", isDark);
     }
 }
