@@ -1101,8 +1101,10 @@ section.account .container aside nav .btn-theme-s {
   justify-content: flex-start;
 }
 section.account .container .details {
-  margin-top: 50px;
   width: 100%;
+}
+section.account .container .details .basic-info {
+  margin: 0px;
 }
 section.account .container .details .basic-info form {
   padding: 1rem;
@@ -1218,8 +1220,11 @@ section#account-security.account .container aside nav .btn-theme-s {
   justify-content: flex-start;
 }
 section#account-security.account .container .details {
-  margin-top: 50px;
+  margin: 0px;
   width: 100%;
+}
+section#account-security.account .container .details .basic-info {
+  margin: 0px;
 }
 section#account-security.account .container .details .basic-info form {
   padding: 1rem;
@@ -1243,16 +1248,18 @@ section#account-security.account .container .details .basic-info form .content #
   grid-area: confirm;
 }
 section#account-security.account .container .details .basic-info form .form-buttons {
-  grid-area: buttons;
-  margin: 20px 0;
   display: flex;
-  gap: 20px;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 100px;
 }
 section#account-security.account .container .adress-info {
   margin-top: 30px;
 }
 section#account-security.account .container .adress-info form {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 section#account-security.account .container .adress-info form h5 {
   color: #6366F1;
@@ -1263,7 +1270,7 @@ section#account-security.account .container .adress-info form .content {
 section#account-security.account .container .adress-info form .content #form-city {
   grid-area: city;
 }
-section#account-security.account .container .adress-info form .content .form-buttons {
+section#account-security.account .container .adress-info form .form-buttons {
   grid-area: buttons;
   margin: 20px 0;
   display: flex;
@@ -2089,4 +2096,111 @@ section.subscribe .container .subscribe-form .status-message a {
 }
 .program-details .container .number .square-text-details .circle-text {
   margin-top: 35px;
+}
+
+section#account-notifications.account .container {
+  display: grid;
+  grid-template-columns: 2fr 5fr;
+  gap: 150px;
+  margin-bottom: 70px;
+}
+section#account-notifications.account .container aside {
+  border-right: 1px solid #E2E5F1;
+  padding-right: 20px;
+}
+section#account-notifications.account .container aside .profile-info {
+  margin: 29px;
+  text-align: center;
+}
+section#account-notifications.account .container aside .profile-info h5 {
+  margin-top: 15px;
+  margin-bottom: 0;
+}
+section#account-notifications.account .container aside .profile-info p {
+  line-height: 160%;
+  font-weight: 400;
+  color: #565973;
+  font-family: "Manrope", sans-serif;
+  font-size: 16px !important;
+}
+section#account-notifications.account .container aside nav {
+  margin-top: 50px;
+  text-align: left;
+}
+section#account-notifications.account .container aside nav a {
+  margin: 10px 0;
+  text-align: left;
+  justify-content: flex-start;
+}
+section#account-notifications.account .container aside nav .btn-theme-s {
+  text-align: left;
+  justify-content: flex-start;
+}
+section#account-notifications.account .container .notifications h2 {
+  margin-bottom: 25px;
+}
+section#account-notifications.account .container .notifications .notification-form .input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+section#account-notifications.account .container .notifications .notification-form .input-group input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 50%;
+  margin-top: 10px;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option {
+  display: flex;
+  align-items: center;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .notification-label {
+  margin-top: 30px;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+  margin-right: 20px;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch .slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch input:checked + .slider {
+  background-color: #4caf50;
+}
+section#account-notifications.account .container .notifications .notification-form .notification-option .switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+section#account-notifications.account .container .notifications .notification-form .form-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 100px;
 }
