@@ -14,6 +14,8 @@ public class ApplicationUser : IdentityUser
     public AddressEntity Address { get; set; }
     public bool IsSubscribed { get; set; }
     public bool IsDarkTheme { get; set; }
+
+
 }
 
 public class AddressEntity
@@ -24,6 +26,4 @@ public class AddressEntity
     public string? AddressLine_2 { get; set; }
     public string PostalCode { get; set; } = null!;
     public string City { get; set; } = null!;
-
-
 }
