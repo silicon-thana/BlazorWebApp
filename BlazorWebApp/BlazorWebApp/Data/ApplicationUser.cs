@@ -12,7 +12,8 @@ public class ApplicationUser : IdentityUser
     public string? ProfileImg { get; set; }
     public int? AddressId { get; set; }
     public AddressEntity Address { get; set; }
-
+    public bool IsSubscribed { get; set; }
+    public bool IsDarkTheme { get; set; }
 }
 
 public class AddressEntity

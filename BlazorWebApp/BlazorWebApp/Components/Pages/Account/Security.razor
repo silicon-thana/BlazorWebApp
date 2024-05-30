@@ -28,16 +28,15 @@
                             <InputText @bind-Value="PasswordChange.ConfirmPassword" type="password" placeholder="Confirm New Password" />
                             <ValidationMessage For="() => PasswordChange.ConfirmPassword" class="text-danger" />
                         </div>
-
-                        <div class="form-buttons">
-                            <button class="btn-gray" type="reset">Cancel</button>
-                            <button class="btn-theme" type="submit">Save Changes</button>
-                        </div>
-                        @if (!string.IsNullOrEmpty(StatusMessage))
-                        {
-                            <div>@StatusMessage</div>
-                        }
                     </div>
+                    <div class="form-buttons">
+                        <button class="btn-gray" type="reset">Cancel</button>
+                        <button class="btn-theme" type="submit">Save Changes</button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(StatusMessage))
+                    {
+                        <div>@StatusMessage</div>
+                    }
                 </EditForm>
             </section>
             <hr />

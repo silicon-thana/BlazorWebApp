@@ -1,0 +1,136 @@
+﻿@page "/account/notifications"
+@rendermode InteractiveServer
+
+<PageTitle>Profile</PageTitle>
+<section id="account-notifications" class="account">
+    <div class="container">
+        <ManageNavMenu User="user" />
+        <div class="notifications">
+            <EditForm class="notification-form" Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="notificationEmail">
+                <h2>Notifications</h2>
+                <div id="notification-email" class="input-group">
+                    <label for="email">Preferred email for notifications</label>
+                    <InputText @bind-Value="Input.Email" type="email" id="email" placeholder="example@gmail.com" />
+                </div>
+                <div class="notification-option">
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="Input.isSubscribed" />
+                        <span class="slider round"></span>
+                    </label>
+                    <div class="notification-label">
+                        <h6>Subscribe to Newsletter</h6>
+                        <p>Nec, posuere non felis duis massa vitae aliquet interdum scelerisque. Neque ullamcorper.</p>
+                    </div>
+                </div>
+                <div class="notification-option">
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="Input.isDarkTheme" />
+                        <span class="slider round"></span>
+                    </label>
+                    <div class="notification-label">
+                        <h6>Use Dark Mode Theme in Application</h6>
+                        <p>Tortor massa porttitor enim tristique neque fermentum sed.</p>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    @if (!string.IsNullOrEmpty(StatusMessage))
+                    {
+                        <div class="status-message">@StatusMessage</div>
+                    }
+                    <button type="button" class="btn-gray">Cancel</button>
+                    <button type="submit" class="btn-theme">Save changes</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</section>
+
+@code {
+    private ApplicationUser? user;
+    private InputModel Input { get; set; } = new();
+    private string? StatusMessage { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = authState.User;
+
+        if (userIdentity.Identity?.IsAuthenticated == true)
+        {
+            user = await UserManager.GetUserAsync(userIdentity);
+            if (user != null)
+            {
+                Input.Email = user.Email;
+                Input.isSubscribed = user.IsSubscribed;
+                Input.isDarkTheme = user.IsDarkTheme;
+                // Populate other subscription preferences as needed
+            }
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/signin", true);
+        }
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        StatusMessage = string.Empty;
+
+        if (!string.IsNullOrEmpty(Input.Email))
+        {
+            user.Email = Input.Email;
+            user.IsSubscribed = Input.isSubscribed;
+            user.IsDarkTheme = Input.isDarkTheme;
+            // Update other subscription preferences as needed
+
+            await UserManager.UpdateAsync(user);
+
+            if (Input.isSubscribed)
+            {
+                await SubscribeToNewsletter(Input.Email);
+            }
+            StatusMessage = "Your preferences have been saved.";
+        }
+        else
+        {
+            StatusMessage = "Please enter a valid email address.";
+        }
+    }
+
+    private async Task SubscribeToNewsletter(string email)
+    {
+        var url = "https://newsletterprovider-silicon-thanakorn.azurewebsites.net/api/Subscribe?code=3e5G-N5hMqJHbOiV9rjWq-kw23edp7tNR-fu54vdeIDNAzFucuibxg%3D%3D";
+        var content = new StringContent($"{{ \"email\": \"{email}\" }}", System.Text.Encoding.UTF8, "application/json");
+
+        try
+        {
+            var response = await Http.PostAsync(url, content);
+            if (response.IsSuccessStatusCode)
+            {
+                StatusMessage = "Successfully subscribed to the newsletter!";
+            }
+            else
+            {
+                StatusMessage = "Failed to subscribe to the newsletter. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [Display(Name = "Email Address")]
+        public string? Email { get; set; }
+
+        [Display(Name = "isSubscribed")]
+        public bool isSubscribed { get; set; }
+
+        [Display(Name = "Dark theme")]
+        public bool isDarkTheme { get; set; }
+    }
+}
