@@ -59,6 +59,13 @@
         if (userIdentity.Identity?.IsAuthenticated == true)
         {
             user = await UserManager.GetUserAsync(userIdentity);
+            if (user != null)
+            {
+                Input.Email = user.Email;
+                Input.isSubscribed = user.IsSubscribed;
+                Input.isDarkTheme = user.IsDarkTheme;
+                // Populate other subscription preferences as needed
+            }
         }
         else
         {
@@ -70,13 +77,24 @@
     {
         StatusMessage = string.Empty;
 
-        if (Input.isSubscribed && !string.IsNullOrEmpty(Input.Email))
+        if (!string.IsNullOrEmpty(Input.Email))
         {
-            await SubscribeToNewsletter(Input.Email);
+            user.Email = Input.Email;
+            user.IsSubscribed = Input.isSubscribed;
+            user.IsDarkTheme = Input.isDarkTheme;
+            // Update other subscription preferences as needed
+
+            await UserManager.UpdateAsync(user);
+
+            if (Input.isSubscribed)
+            {
+                await SubscribeToNewsletter(Input.Email);
+            }
+            StatusMessage = "Your preferences have been saved.";
         }
         else
         {
-            StatusMessage = "Please enter a valid email address to subscribe.";
+            StatusMessage = "Please enter a valid email address.";
         }
     }
 
