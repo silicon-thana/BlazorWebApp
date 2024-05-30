@@ -21,6 +21,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpClient();
 
+builder.Services.AddHttpClient();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
