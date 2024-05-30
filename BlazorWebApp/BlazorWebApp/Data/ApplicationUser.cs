@@ -14,6 +14,7 @@ public class ApplicationUser : IdentityUser
     public AddressEntity Address { get; set; }
     public bool IsSubscribed { get; set; }
     public bool IsDarkTheme { get; set; }
+    public string? NotificationEmail { get; set; }
 
 
 }
