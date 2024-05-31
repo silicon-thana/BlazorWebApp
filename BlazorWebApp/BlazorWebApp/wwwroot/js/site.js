@@ -43,3 +43,5 @@ document.addEventListener('DOMContentLoaded', (event) => {
         switchMode.checked = isDarkMode;
     }
 });
+
+

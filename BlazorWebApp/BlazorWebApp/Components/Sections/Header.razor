@@ -1,22 +1,14 @@
-﻿@using BlazorWebApp.Data
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.Components.Authorization
-
+﻿@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavigationManager
-@inject SignInManager<ApplicationUser> SignInManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
-
-@rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <header>
     <div class="container">
         <a id="logo" href="/"><img src="/img/logo.svg" alt="Logo"></a>
-
         <div class="btn-mobile" onclick="toggleMobileMenu()">
             <i class="fa fa-bars"></i>
         </div>
-
         <div id="menu">
             <nav>
                 <NavLink class="menu-link" href="/">Overview</NavLink>
@@ -31,7 +23,6 @@
                 <NavLink class="menu-link" href="/contact">Contact</NavLink>
             </nav>
         </div>
-
         <div class="btn-switch">
             <label>Light</label>
             <label class="switch" for="switch-mode">
@@ -40,7 +31,6 @@
             </label>
             <label>Dark</label>
         </div>
-
         <div class="account-buttons">
             <AuthorizeView>
                 <Authorized>
@@ -52,7 +42,6 @@
                 </NotAuthorized>
             </AuthorizeView>
         </div>
-
         <div id="mobile-menu" class="mobile-menu">
             <button class="close-menu" onclick="toggleMobileMenu()"><i class="fa-light fa-xmark"></i></button>
             <nav>
@@ -81,11 +70,6 @@
 </header>
 
 @code {
-    private void NavigateToSignOut()
-    {
-        NavigationManager.NavigateTo("/signout");
-    }
-
     private async Task ToggleDarkMode(ChangeEventArgs e)
     {
         bool isDark = (bool)e.Value;
