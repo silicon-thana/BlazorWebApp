@@ -1,6 +1,11 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@page "/profile"
+
 @using BlazorWebApp.Data
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore
 @using System.Net.Http.Headers
+
 @inject UserManager<ApplicationUser> UserManager
 @inject NavigationManager Navigation
 @inject HttpClient Http
@@ -8,23 +13,46 @@
 @inject ApplicationDbContext DbContext
 @rendermode InteractiveServer
 
-<div class="profile-image">
-    <img src="@User?.ProfileImg" alt="@User?.UserName" />
+<h3>User Profile</h3>
+
+@if (user != null)
+{
+    <div>
+        <p>Username: @user.UserName</p>
+        <p>Name: @user.FirstName</p>
+        <img src="@user.ProfileImg" alt="Profile Picture" style="max-width: 200px;" />
+    </div>
+
     <InputFile OnChange="HandleSelected" />
-    <i class="fa-sharp fa-regular fa-arrows-rotate"></i>
-    <h3>@User?.FirstName @User?.LastName</h3>
-    <p>@User?.Email</p>
-</div>
+    <button @onclick="UploadProfilePicture">Change Profile Picture</button>
+}
+else
+{
+    <p>Loading...</p>
+}
 
 @code {
-    [Parameter]
-    public ApplicationUser? User { get; set; }
+    private ApplicationUser user;
     private IBrowserFile selectedFile;
 
-    private async void HandleSelected(InputFileChangeEventArgs e)
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var currentUser = authState.User;
+
+        if (currentUser.Identity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(currentUser);
+        }
+        else
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private void HandleSelected(InputFileChangeEventArgs e)
     {
         selectedFile = e.File;
-        await UploadProfilePicture();
     }
 
     private async Task UploadProfilePicture()
@@ -48,8 +76,8 @@
                     if (result != null)
                     {
                         // Use the filePath from the result for ProfileImg
-                        User.ProfileImg = result.filePath;
-                        var updateResult = await UserManager.UpdateAsync(User);
+                        user.ProfileImg = result.filePath;
+                        var updateResult = await UserManager.UpdateAsync(user);
                         if (updateResult.Succeeded)
                         {
                             StateHasChanged();
@@ -78,7 +106,7 @@
 
     private class UploadResult
     {
-        public string fileName { get; set; } = null!;
-        public string filePath { get; set; } = null!;
+        public string fileName { get; set; }
+        public string filePath { get; set; }
     }
 }

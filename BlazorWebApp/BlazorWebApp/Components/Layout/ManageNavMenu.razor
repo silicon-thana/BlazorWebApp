@@ -11,14 +11,10 @@
 
 <aside>
     <div class="profile-info">
-        <div>
-            <ProfilePicture/>
-        </div>
-        <h3>@User?.FirstName @User?.LastName</h3>
-        <p>@User?.Email</p>
+        <ProfilePicture User="User"/>
     </div>
     <nav>
-        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s" >Account Details</NavLink>
+        <NavLink href="/account/details" class="btn-transparent" ActiveClass="btn-theme-s">Account Details</NavLink>
         <NavLink href="/account/security" class="btn-transparent" ActiveClass="btn-theme-s">Security</NavLink>
         <NavLink href="/account/notifications" class="btn-transparent" ActiveClass="btn-theme-s">Notifications</NavLink>
         <NavLink href="/account/saved-courses" class="btn-transparent" ActiveClass="btn-theme-s">Saved Courses</NavLink>

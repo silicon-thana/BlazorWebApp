@@ -205,10 +205,10 @@
                     user.Address = new AddressEntity();
                 }
 
-                user.Address.AddressLine_1 = AddressInput.AddressLine1;
+                user.Address.AddressLine_1 = AddressInput.AddressLine1!;
                 user.Address.AddressLine_2 = AddressInput.AddressLine2;
-                user.Address.PostalCode = AddressInput.PostalCode;
-                user.Address.City = AddressInput.City;
+                user.Address.PostalCode = AddressInput.PostalCode!;
+                user.Address.City = AddressInput.City!;
 
                 var result = await UserManager.UpdateAsync(user);
                 if (result.Succeeded)
