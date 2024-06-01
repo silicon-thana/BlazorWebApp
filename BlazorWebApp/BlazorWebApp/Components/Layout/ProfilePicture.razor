@@ -6,6 +6,7 @@
 @inject HttpClient Http
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ApplicationDbContext DbContext
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <div class="profile-image">
@@ -36,7 +37,7 @@
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(selectedFile.ContentType);
             content.Add(fileContent, "file", selectedFile.Name);
 
-            var response = await Http.PostAsync("https://fileprovider-silicon-thanakorn.azurewebsites.net/api/Upload?code=EPHb-nS8kiQvzlnHKoTHLmSNk_ts4vHfz4IUdYb5Kt5yAzFuAKFdBQ%3D%3D", content);
+            var response = await Http.PostAsync(Configuration["FileUpload"], content);
 
             var responseContent = await response.Content.ReadAsStringAsync();
 
