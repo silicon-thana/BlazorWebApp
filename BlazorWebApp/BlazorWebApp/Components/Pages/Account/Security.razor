@@ -94,7 +94,7 @@
 
     private async Task ChangePasswordAsync()
     {
-        StatusMessage = string.Empty; // Clear previous status messages
+        StatusMessage = string.Empty; 
 
         Console.WriteLine($"Attempting to change password for user: {user.UserName}");
 
@@ -121,7 +121,7 @@
 
     private async Task DeleteAccountAsync()
     {
-        StatusMessage = string.Empty; // Clear previous status messages
+        StatusMessage = string.Empty; 
 
         if (DeleteAccount.ConfirmDelete)
         {
@@ -131,7 +131,7 @@
 
             if (result.Succeeded)
             {
-                NavigationManager.NavigateTo("/signout"); // Navigate to the sign-out page
+                NavigationManager.NavigateTo("/signout"); 
             }
             else
             {

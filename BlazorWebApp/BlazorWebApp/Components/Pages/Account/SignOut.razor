@@ -13,7 +13,6 @@
         await SignInManager.SignOutAsync();
         Logger.LogInformation("User signed out successfully.");
 
-        // Notify authentication state changed
         var customAuthStateProvider = AuthenticationStateProvider as PersistingRevalidatingAuthenticationStateProvider;
         customAuthStateProvider?.NotifyUserSignedOut();
         NavigationManager.NavigateTo("/", true);

@@ -77,7 +77,7 @@
 
         if (!string.IsNullOrEmpty(Input.NotificationEmail))
         {
-            user.NotificationEmail = Input.NotificationEmail;
+            user!.NotificationEmail = Input.NotificationEmail;
             user.IsSubscribed = Input.IsSubscribed;
             user.IsDarkTheme = Input.IsDarkTheme;
 
@@ -107,12 +107,11 @@
 
     private async Task SubscribeToNewsletter(string email)
     {
-        var url = "https://newsletterprovider-silicon-thanakorn.azurewebsites.net/api/Subscribe?code=3e5G-N5hMqJHbOiV9rjWq-kw23edp7tNR-fu54vdeIDNAzFucuibxg%3D%3D";
         var content = new StringContent($"{{ \"email\": \"{email}\" }}", System.Text.Encoding.UTF8, "application/json");
 
         try
         {
-            var response = await Http.PostAsync(url, content);
+            var response = await Http.PostAsync(Configuration["NewsletterSubAPI"], content);
             if (response.IsSuccessStatusCode)
             {
                 StatusMessage = "Successfully subscribed to the newsletter!";
@@ -130,12 +129,11 @@
 
     private async Task UnsubscribeFromNewsletter(string email)
     {
-        var url = "https://newsletterprovider-silicon-thanakorn.azurewebsites.net/api/Unsubscribe?code=uQHg-PQZApM4ftXjLvPxoFDHoIRolEMjgvimakpkQEDeAzFuSySTmA%3D%3D";
         var content = new StringContent($"{{ \"email\": \"{email}\" }}", System.Text.Encoding.UTF8, "application/json");
 
         try
         {
-            var response = await Http.PostAsync(url, content);
+            var response = await Http.PostAsync(Configuration["NewsletterUnsubAPI"], content);
             if (response.IsSuccessStatusCode)
             {
                 StatusMessage = "Successfully unsubscribed from the newsletter!";

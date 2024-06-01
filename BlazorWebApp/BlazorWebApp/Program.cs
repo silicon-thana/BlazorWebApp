@@ -8,11 +8,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebbApp.Components.Account;
 using Azure.Identity;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri")!);
-//builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+var keyVaultUri = builder.Configuration["VaultUri"];
+if (!string.IsNullOrEmpty(keyVaultUri))
+{
+    var credential = new DefaultAzureCredential();
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), credential);
+}
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -40,7 +46,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/accessdenied"; // Path to the access denied page
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Adjust as necessary
 });
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+// Retrieve the connection string and other secrets from Key Vault
+var connectionString = builder.Configuration["DefaultConnection"] ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -58,6 +67,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
     app.UseMigrationsEndPoint();
+
 }
 else
 {

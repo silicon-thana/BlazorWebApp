@@ -2,6 +2,7 @@
 @using System.Text.Json.Serialization
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
+@inject IConfiguration Configuration
 @inject HttpClient Http
 
 @attribute [StreamRendering]
@@ -55,7 +56,7 @@
                             <img class="course-img" src="@course.ImageUri" />
                             <h5 class="course-title">@course.Title</h5>
                             <div class="content">
-                                <div class="course-author">by @string.Join(", ", course.Authors.Select(a => a.Name))</div>
+                                <div class="course-author">by @string.Join(", ", course.Authors!.Select(a => a.Name))</div>
                                 @if (course.Prices?.Discount > 0)
                                 {
                                     <div class="course-prices">
@@ -90,7 +91,7 @@
 @code {
     private CourseModel[]? courses;
     private string? errorMessage;
-
+    
     protected override async Task OnInitializedAsync()
     {
         try
@@ -99,8 +100,8 @@
                 {
                     Query = @"{ getCourses { id isBestseller title authors { name } categories prices { price discount currency } hours likesInProcent likes imageUri } }"
                 };
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://courseprovider-silicon-thanakorn.azurewebsites.net/api/graphql?code=PM4hag2rE0gh_6oywqUZXEZW0ugeHw_37FxxfAghABi_AzFuYKTQGA%3D%3D")
+            
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, Configuration["GraphqlAPI"])
             {
                     Content = JsonContent.Create(query)
                 };

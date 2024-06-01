@@ -4,6 +4,7 @@
 @inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 @inject HttpClient Http
+@inject IConfiguration Configuration
 @rendermode InteractiveServer
 
 <PageTitle>Contact</PageTitle>
@@ -94,7 +95,7 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync(Environment.GetEnvironmentVariable("Contact_Request_API"), Input);
+            var response = await Http.PostAsJsonAsync(Configuration["ContactRequestAPI"], Input);
 
             if (response.IsSuccessStatusCode)
             {
