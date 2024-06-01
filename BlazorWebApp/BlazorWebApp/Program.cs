@@ -1,22 +1,27 @@
-using BlazorWebApp.Client.Pages;
 using BlazorWebApp.Components;
 using BlazorWebApp.Components.Account;
 using BlazorWebApp.Data;
-using BlazorWebApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebbApp.Components.Account;
 using Azure.Identity;
-using Azure.Extensions.AspNetCore.Configuration.Secrets;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultUri = builder.Configuration["VaultUri"];
 if (!string.IsNullOrEmpty(keyVaultUri))
 {
-    var credential = new DefaultAzureCredential();
+    var clientId = Environment.GetEnvironmentVariable("WebApp_CLIENT_ID");
+    var tenantId = Environment.GetEnvironmentVariable("WebApp_TENANT_ID");
+    var clientSecret = Environment.GetEnvironmentVariable("WebApp_CLIENT_SECRET");
+
+    if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(tenantId) || string.IsNullOrEmpty(clientSecret))
+    {
+        throw new InvalidOperationException("One or more environment variables are not set.");
+    }
+
+    var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUri), credential);
 }
 
