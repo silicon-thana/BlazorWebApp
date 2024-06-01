@@ -1,6 +1,7 @@
 ﻿@rendermode InteractiveServer
 @using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
+@inject IConfiguration Configuration
 
 
 <section class="subscribe">
@@ -80,7 +81,7 @@
     {
         try
         {
-            var result = await Http.PostAsJsonAsync("https://newsletterprovider-silicon-thanakorn.azurewebsites.net/api/Subscribe?code=3e5G-N5hMqJHbOiV9rjWq-kw23edp7tNR-fu54vdeIDNAzFucuibxg%3D%3D", SubscribeForm);
+            var result = await Http.PostAsJsonAsync(Configuration["NewsletterSubAPI"], SubscribeForm);
             if (result.IsSuccessStatusCode)
             {
                 StatusMessage = "Thank you for subscribing";
