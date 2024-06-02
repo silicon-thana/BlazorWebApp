@@ -234,9 +234,7 @@
                         PlainTextContent = $"Dear User, You have successfully joined the course - {course!.Title}."
                     };
 
-                var functionUrl = "https://emailprovider-silicon-thanakorn.azurewebsites.net/api/SendEmailHttpTrigger?code=G8LqouZY_qtuR-8DzLWhSj9dwAi2JMlM6DyoLv0kL8QBAzFuF8kW2w%3D%3D";
-
-                var response = await Http.PostAsJsonAsync(functionUrl, emailRequest);
+                var response = await Http.PostAsJsonAsync(Configuration["EmailSenderHTTP"], emailRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
