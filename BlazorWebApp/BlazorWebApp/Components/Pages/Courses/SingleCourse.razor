@@ -3,122 +3,140 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using BlazorWebApp.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @inject IConfiguration Configuration
 @inject HttpClient Http
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject IJSRuntime JS
+
+@rendermode InteractiveServer
 
 <PageTitle>@course?.Title</PageTitle>
 
-<section class="singlecourseshowcase">
-    <img src="@course?.ImageHeaderUri" alt="Course header image">
-    <div class="container">
-        <div class="header-singlecourse">
-
-            <div class="breadcrumb">
-                <i class="fa-solid fa-house"></i>
-                <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
-                <i class="fa-solid fa-angles-right"></i>
-                <NavLink ActiveClass="active" href="/courses" Match="NavLinkMatch.All">Courses</NavLink>
-                <i class="fa-solid fa-angles-right"></i>
-                <NavLink ActiveClass="active" href="@($"/course/{Id}")" Match="NavLinkMatch.All">@course?.Title</NavLink>
-            </div>
-
-
-            <div class="seller-square">
-                @if (course?.IsBestseller == true)
-                {
-                    <div class="green-box">
-                        <p>Best Seller</p>
+<AuthorizeView>
+    <Authorized>
+        <section class="singlecourseshowcase">
+            <img src="@course?.ImageHeaderUri" alt="Course header image">
+            <div class="container">
+                <div class="header-singlecourse">
+                    <div class="breadcrumb">
+                        <i class="fa-solid fa-house"></i>
+                        <NavLink ActiveClass="active" href="/" Match="NavLinkMatch.All">Home</NavLink>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <NavLink ActiveClass="active" href="/courses" Match="NavLinkMatch.All">Courses</NavLink>
+                        <i class="fa-solid fa-angles-right"></i>
+                        <NavLink ActiveClass="active" href="@($"/course/{Id}")" Match="NavLinkMatch.All">@course?.Title</NavLink>
                     </div>
-                }
-                @if (course?.IsDigital == true)
-                {
-                    <div class="white-box">
-                        <p>Digital</p>
-                    </div>
-                }
-            </div>
-            <div class="text-header">
-                <h1>@course?.Title</h1>
-                <p>@course?.Ingress</p>
-            </div>
-            <div class="rating">
-                <div class="star">
-                    @for (int i = 0; i < 5; i++)
-                    {
-                        <span class="fa fa-star @(i < course?.StarRating ? "checked" : "")"></span>
-                    }
-                    <p>(@course?.Reviews reviews)</p>
-                </div>
-                <div class="rating-thumb">
-                    <i class="fa-regular fa-thumbs-up"></i>
-                    <p>@course?.Likes likes (@course?.LikesInProcent%)</p>
-                </div>
-                <div class="rating-clock">
-                    <i class="fa-regular fa-clock"></i>
-                    <p>@course?.Hours hours</p>
-                </div>
-            </div>
-            <div class="img-text">
-                @foreach (var author in course?.Authors ?? new List<Author>())
-                {
-                    <img src="@author.AuthorImageUri" alt="picture of @author.Name">
-                    <div class="image-text-header">
-                        <p class="bold-p">Created by</p>
-                        <p class="p-normal">@author.Name</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</section>
 
-<section class="description-course">
-    <div class="container">
-        <div class="description-header">
-            <div class="singlecourse-header">
-                <h1>Course Description</h1>
-                <p>@course?.Content?.Description</p>
-                <div class="learn-what">
-                    <h2>What you'll learn</h2>
-                    @foreach (var item in course?.Content?.Learn ?? new string[0])
-                    {
-                        <span class="checked-info"><i class="fa-regular fa-circle-check"></i><p>@item</p></span>
-                    }
-                </div>
-            </div>
-            <div class="singlecourse-box">
-                <h4>This course includes:</h4>
-                @foreach (var include in course?.Content?.Includes ?? new string[0])
-                {
-                    <span class="course-include"><i class="fa-solid fa-tv"></i><p>@include</p></span>
-                }
-                <div class="price-box">
-                    <p class="discount-price">@course?.Prices?.Currency @course?.Prices?.Discount</p>
-                    <p class="actual-price">@course?.Prices?.Currency @course?.Prices?.Price</p>
-                </div>
-                <a class="btn-theme-s" href="#">Join course</a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="program-details">
-    <div class="container">
-        <h1>Program Details</h1>
-        @foreach (var module in course?.Content?.ProgramDetails ?? new List<ProgramDetailItem>())
-        {
-            <div class="number">
-                <div class="circle"><p>@module.Id</p></div>
-                <div class="square-text-details">
-                    <div class="circle-text">
-                        <h4>@module.Title</h4>
-                        <p>@module.Description</p>
+                    <div class="seller-square">
+                        @if (course?.IsBestseller == true)
+                        {
+                            <div class="green-box">
+                                <p>Best Seller</p>
+                            </div>
+                        }
+                        @if (course?.IsDigital == true)
+                        {
+                            <div class="white-box">
+                                <p>Digital</p>
+                            </div>
+                        }
+                    </div>
+                    <div class="text-header">
+                        <h1>@course?.Title</h1>
+                        <p>@course?.Ingress</p>
+                    </div>
+                    <div class="rating">
+                        <div class="star">
+                            @for (int i = 0; i < 5; i++)
+                            {
+                                <span class="fa fa-star @(i < course?.StarRating ? "checked" : "")"></span>
+                            }
+                            <p>(@course?.Reviews reviews)</p>
+                        </div>
+                        <div class="rating-thumb">
+                            <i class="fa-regular fa-thumbs-up"></i>
+                            <p>@course?.Likes likes (@course?.LikesInProcent%)</p>
+                        </div>
+                        <div class="rating-clock">
+                            <i class="fa-regular fa-clock"></i>
+                            <p>@course?.Hours hours</p>
+                        </div>
+                    </div>
+                    <div class="img-text">
+                        @foreach (var author in course?.Authors ?? new List<Author>())
+                        {
+                            <img src="@author.AuthorImageUri" alt="picture of @author.Name">
+                            <div class="image-text-header">
+                                <p class="bold-p">Created by</p>
+                                <p class="p-normal">@author.Name</p>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
-        }
-    </div>
-</section>
+        </section>
+
+        <section class="description-course">
+            <div class="container">
+                <div class="description-header">
+                    <div class="singlecourse-header">
+                        <h1>Course Description</h1>
+                        <p>@course?.Content?.Description</p>
+                        <div class="learn-what">
+                            <h2>What you'll learn</h2>
+                            @foreach (var item in course?.Content?.Learn ?? new string[0])
+                            {
+                                <span class="checked-info"><i class="fa-regular fa-circle-check"></i><p>@item</p></span>
+                            }
+                        </div>
+                    </div>
+                    <div class="singlecourse-box">
+                        <h4>This course includes:</h4>
+                        @foreach (var include in course?.Content?.Includes ?? new string[0])
+                        {
+                            <span class="course-include"><i class="fa-solid fa-tv"></i><p>@include</p></span>
+                        }
+                        <div class="price-box">
+                            <p class="discount-price">@course?.Prices?.Currency @course?.Prices?.Discount</p>
+                            <p class="actual-price">@course?.Prices?.Currency @course?.Prices?.Price</p>
+                        </div>
+                        @if (!string.IsNullOrEmpty(StatusMessage))
+                        {
+                            <div>@StatusMessage</div>
+                        }
+                        <button class="btn-theme" @onclick="JoinCourseAction">Join course</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="program-details">
+            <div class="container">
+                <h1>Program Details</h1>
+                @foreach (var module in course?.Content?.ProgramDetails ?? new List<ProgramDetailItem>())
+                {
+                    <div class="number">
+                        <div class="circle"><p>@module.Id</p></div>
+                        <div class="square-text-details">
+                            <div class="circle-text">
+                                <h4>@module.Title</h4>
+                                <p>@module.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to view this page. Please <a href="Authentication/login">log in</a>.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter]
@@ -126,56 +144,132 @@
 
     private Course? course;
     private string? errorMessage;
+    private string StatusMessage { get; set; } = string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {
-        try
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity!.IsAuthenticated)
         {
-            var query = new
+            try
             {
-                query = "query($id: String!) { getCourseById(id: $id) { id title ingress starRating reviews likesInProcent likes hours authors { name authorImageUri } prices { currency price discount } content { description learn includes programDetails { id title description } } isBestseller isDigital imageHeaderUri } }",
-                variables = new { id = Id }
-            };
-
-            var content = JsonContent.Create(query);
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                    RequestUri = new Uri(Configuration["GraphqlAPI"]!),
-                Content = content
-            };
-
-            var response = await Http.SendAsync(request);
-
-            var responseContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Response Content: {responseContent}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var result = JsonSerializer.Deserialize<GraphQLResponse<CourseData>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                if (result?.Data?.GetCourseById != null)
+                var query = new
                 {
-                    course = result.Data.GetCourseById;
+                    query = "query($id: String!) { getCourseById(id: $id) { id title ingress starRating reviews likesInProcent likes hours authors { name authorImageUri } prices { currency price discount } content { description learn includes programDetails { id title description } } isBestseller isDigital imageHeaderUri } }",
+                    variables = new { id = Id }
+                };
+
+                var content = JsonContent.Create(query);
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+                var request = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        RequestUri = new Uri(Configuration["GraphqlAPI"]!),
+                        Content = content
+                    };
+
+                var response = await Http.SendAsync(request);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Content: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = JsonSerializer.Deserialize<GraphQLResponse<CourseData>>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if (result?.Data?.GetCourseById != null)
+                    {
+                        course = result.Data.GetCourseById;
+                    }
+                    else
+                    {
+                        errorMessage = "Data format error: 'getCourseById' property not found.";
+                    }
                 }
                 else
                 {
-                    errorMessage = "Data format error: 'getCourseById' property not found.";
+                    errorMessage = $"Error: {response.StatusCode}";
+                    Console.WriteLine($"Error Content: {responseContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An error occurred: {ex.Message}";
+                Console.WriteLine(ex.ToString());
+            }
+        }
+        else
+        {
+            Navigation.NavigateTo("Authentication/login");
+        }
+    }
+
+    private async Task JoinCourseAction()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("showLoader");
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userIdentity = authState.User;
+
+            if (userIdentity.Identity?.IsAuthenticated == true)
+            {
+                var userId = UserManager.GetUserId(userIdentity);
+                var user = await UserManager.FindByIdAsync(userId!);
+                var emailAddress = await UserManager.GetEmailAsync(user!);
+
+                if (string.IsNullOrEmpty(emailAddress))
+                {
+                    StatusMessage = "Email address not found.";
+                    LogError("Email address not found for authenticated user.");
+                    return;
+                }
+
+                var emailRequest = new EmailRequest
+                    {
+                        RecipientAddress = emailAddress!,
+                        Subject = "Course Enrollment Confirmation",
+                        HtmlContent = $"<p>Dear {user!.FirstName},</p><p>You have successfully joined the course - {course!.Title}.</p>",
+                        PlainTextContent = $"Dear User, You have successfully joined the course - {course!.Title}."
+                    };
+
+                var functionUrl = "https://emailprovider-silicon-thanakorn.azurewebsites.net/api/SendEmailHttpTrigger?code=G8LqouZY_qtuR-8DzLWhSj9dwAi2JMlM6DyoLv0kL8QBAzFuF8kW2w%3D%3D";
+
+                var response = await Http.PostAsJsonAsync(functionUrl, emailRequest);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    StatusMessage = "You have successfully joined!";
+                }
+                else
+                {
+                    StatusMessage = "Something went wrong!";
+                    LogError($"Error sending email. Status code: {response.StatusCode}, Reason: {response.ReasonPhrase}");
                 }
             }
             else
             {
-                errorMessage = $"Error: {response.StatusCode}";
-                Console.WriteLine($"Error Content: {responseContent}");
+                StatusMessage = "User is not authenticated.";
+                LogError("User is not authenticated.");
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"An error occurred: {ex.Message}";
-            Console.WriteLine(ex.ToString());
+            StatusMessage = "An unexpected error occurred.";
+            LogError(ex.ToString());
+        }
+        finally
+        {
+            await JS.InvokeVoidAsync("hideLoader");
         }
     }
+
+    private void LogError(string message)
+    {
+        Console.WriteLine($"[ERROR] {message}");
+    }
+
 
     public class GraphQLResponse<T>
     {
@@ -233,5 +327,13 @@
         public int Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
+    }
+
+    public class EmailRequest
+    {
+        public string RecipientAddress { get; set; } = null!;
+        public string Subject { get; set; } = null!;
+        public string HtmlContent { get; set; } = null!;
+        public string PlainTextContent { get; set; } = null!;
     }
 }

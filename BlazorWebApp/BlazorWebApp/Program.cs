@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using WebbApp.Components.Account;
 using Azure.Identity;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultUri = builder.Configuration["VaultUri"];
@@ -28,9 +30,8 @@ if (!string.IsNullOrEmpty(keyVaultUri))
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents(); 
+    .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddHttpClient();
 
 builder.Services.AddHttpClient();
 builder.Services.AddCascadingAuthenticationState();

@@ -37,8 +37,6 @@ section {
                             outline: none;
                             border: transparent;
                             margin-right: 50px;
-
-
                         }
                     }
                 }
@@ -66,6 +64,10 @@ section {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 grid-gap: 20px;
+
+                a {
+                    text-decoration: none;
+                }
 
                 .course {
                     position: relative;
@@ -113,6 +115,7 @@ section {
 
                         .course-author {
                             margin-top: 10px;
+                            color: $black;
                         }
 
                         .course-prices {
@@ -141,6 +144,7 @@ section {
                             display: flex;
                             justify-content: space-between;
                             border-top: 1px #E2E5F1 solid;
+                            color: $black;
 
 
                             .course-hour {

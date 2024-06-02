@@ -9,19 +9,19 @@
 @using BlazorWebApp.Data
 @using System.Net.Http
 @using System.Net.Http.Json
-
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Sign Up</PageTitle>
 
 <section id="signup">
     <div class="container">
-
 
         @if (!string.IsNullOrEmpty(@StatusMessage))
         {
@@ -30,9 +30,8 @@
             </div>
         }
 
-
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="signup" novalidate>
-            <DataAnnotationsValidator/>
+            <DataAnnotationsValidator />
 
             <h1>Create Account</h1>
             <p>Already have an account? <a href="/signin">Sign in here</a>.</p>
@@ -43,7 +42,6 @@
                     <label>First Name</label>
                     <InputText @bind-Value="Input.FirstName" autocomplete="givenname" aria-required="true" placeholder="Enter your first name" />
                     <ValidationMessage For="() => Input.FirstName" />
-
                 </div>
 
                 <div id="form-lastname" class="input-group">
@@ -75,12 +73,9 @@
                 </div>
             </div>
             <button id="form-submit" class="btn-theme-s" type="submit">Sign Up</button>
-
         </EditForm>
-
     </div>
 </section>
-
 
 @code {
     private IEnumerable<IdentityError>? identityErrors;
@@ -92,23 +87,28 @@
     [SupplyParameterFromQuery]
     private string? StatusMessage { get; set; }
 
-
-
     private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
 
     public async Task RegisterUser(EditContext editContext)
     {
-
-        var user = new ApplicationUser 
-        { 
-            FirstName = Input.FirstName,
-            LastName = Input.LastName,
-            UserName = Input.Email, 
-            Email = Input.Email 
-        };
-
-
+        var user = new ApplicationUser
+            {
+                FirstName = Input.FirstName,
+                LastName = Input.LastName,
+                UserName = Input.Email,
+                Email = Input.Email
+            };
 
         var result = await UserManager.CreateAsync(user, Input.Password);
 
@@ -117,7 +117,6 @@
             StatusMessage = "Unable to register account";
             return;
         }
-
 
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
@@ -128,8 +127,7 @@
         NavigationManager.NavigateTo(ReturnUrl ?? "/");
     }
 
-
-    private sealed class InputModel 
+    private sealed class InputModel
     {
         [Required]
         [Display(Name = "First name", Order = 0)]
@@ -140,7 +138,6 @@
         [Display(Name = "Last name", Order = 1)]
         [MinLength(2, ErrorMessage = "You must enter a valid last name")]
         public string LastName { get; set; } = null!;
-
 
         [Required]
         [EmailAddress]
@@ -162,6 +159,5 @@
         [Display(Name = "Terms & Conditions.", Order = 5)]
         [CheckBoxRequired(ErrorMessage = "You must agree to the Terms & Conditions.")]
         public bool TermsNCondition { get; set; }
-
     }
 }
