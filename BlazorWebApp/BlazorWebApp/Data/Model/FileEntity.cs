@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BlazorWebApp.Data;
+namespace BlazorWebApp.Data.Model;
 
 public class FileEntity
 {

@@ -1,0 +1,121 @@
+﻿.card {
+    border: none;
+
+    .card-header {
+        background-color: transparent;
+        text-align: center;
+    }
+
+    .card-body {
+        max-height: 500px;
+        overflow-y: auto;
+        // Scrollbar styling
+        &::-webkit-scrollbar {
+            width: 20px;
+
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px; 
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: $gray-500;
+            border-radius: 10px;
+            border: 3px solid #f1f1f1;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: $gray-700; 
+        }
+
+        &::-webkit-scrollbar-button {
+            display: none;
+        }
+
+        .list-group {
+            .list-group-item {
+                background-color: transparent;
+                border-radius: 15px;
+                padding: 10px 20px;
+
+
+                &.chat-bubble-right {
+                    align-self: flex-end;
+                    border: none;
+                    text-align: right;
+
+                    li {
+                        background-color: $theme;
+                        color: $white;
+                    }
+                }
+
+                &.chat-bubble-left {
+                    align-self: flex-start;
+                    border: none;
+                    text-align: left;
+
+                    li {
+                        border: none;
+                        background-color: $gray-100;
+                        color: $gray-700;
+                    }
+                }
+            }
+        }
+
+        .alert-info {
+            text-align: center;
+            background-color: $gray-100;
+            border: none;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            color: #666666;
+        }
+    }
+
+    .card-footer {
+        border: none;
+        background-color: white;
+
+        .chat-input-group {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 2px solid $gray-300;
+            border-radius: 30px;
+            padding: 10px 15px;
+
+            .chat-textarea {
+                flex-grow: 1;
+                border: none;
+                border-radius: 30px;
+                resize: none;
+                margin-right: 10px;
+            }
+
+
+            .btn-send {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 50%;
+                color: $theme;
+                cursor: pointer;
+                margin-left: 10px;
+
+                &:hover {
+                    background-color: $gray-500;
+                }
+
+                i {
+                    font-size: 20px;
+                }
+            }
+        }
+    }
+}

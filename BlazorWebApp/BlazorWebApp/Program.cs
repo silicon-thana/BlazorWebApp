@@ -56,6 +56,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -85,5 +86,5 @@ app.MapRazorComponents<App>()
 
 // Register custom identity endpoints
 app.MapAdditionalIdentityEndpoints();
-
+app.MapHub<ChatHub>("/chathub");
 app.Run();
