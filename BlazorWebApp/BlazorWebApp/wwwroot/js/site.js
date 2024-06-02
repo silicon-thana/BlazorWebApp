@@ -1,4 +1,6 @@
-﻿function toggleMobileMenu() {
+﻿
+//hamburger menu
+function toggleMobileMenu() {
     var menu = document.getElementById('mobile-menu');
     if (menu.classList.contains('show')) {
         menu.classList.remove('show');
@@ -13,7 +15,7 @@ function closeMobileMenuOnResize() {
         menu.classList.remove('show');
     }
 }
-
+//dark mode
 window.addEventListener('resize', closeMobileMenuOnResize);
 
 function setDarkMode(isDark) {
@@ -43,6 +45,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         switchMode.checked = isDarkMode;
     }
 });
+
 
 
 

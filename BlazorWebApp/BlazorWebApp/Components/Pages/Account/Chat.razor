@@ -1,0 +1,25 @@
+﻿@page "/account/chat"
+@rendermode InteractiveServer
+
+<PageTitle>Profile</PageTitle>
+<section id="account-notifications" class="account">
+    <div class="container">
+        <ManageNavMenu User="user" />
+        <BlazorWebApp.Client.Pages.Chat/>
+    </div>
+</section>
+
+@code {
+    private ApplicationUser? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userIdentity = authState.User.Identity;
+
+        if (userIdentity != null && userIdentity.IsAuthenticated)
+        {
+            user = await UserManager.GetUserAsync(authState.User);
+        }
+    }
+}
