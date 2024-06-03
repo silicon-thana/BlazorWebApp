@@ -1,34 +1,27 @@
 ﻿@page "/signup"
 
 @using System.ComponentModel.DataAnnotations
-@using System.Text
-@using System.Text.Encodings.Web
+@using System.Text.Json
+@using Azure.Messaging.ServiceBus
 @using BlazorWebApp.Filters
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
 @using BlazorWebApp.Data
 @using System.Net.Http
-@using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components.Authorization
+@using WebbApp.Components.Account
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
-@inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ServiceBusClient ServiceBusClient
+@inject IdentityRedirectManager IdentityRedirectManager
 
 <PageTitle>Sign Up</PageTitle>
 
 <section id="signup">
     <div class="container">
-
-        @if (!string.IsNullOrEmpty(@StatusMessage))
-        {
-            <div class="alert alert-danger">
-                @StatusMessage
-            </div>
-        }
 
         <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="signup" novalidate>
             <DataAnnotationsValidator />
@@ -72,6 +65,13 @@
                     <ValidationMessage For="() => Input.TermsNCondition" />
                 </div>
             </div>
+
+            @if (!string.IsNullOrEmpty(@StatusMessage))
+            {
+                <div class="alert alert-danger">
+                    @StatusMessage
+                </div>
+            }
             <button id="form-submit" class="btn-theme-s" type="submit">Sign Up</button>
         </EditForm>
     </div>
@@ -107,24 +107,46 @@
                 FirstName = Input.FirstName,
                 LastName = Input.LastName,
                 UserName = Input.Email,
-                Email = Input.Email
+                Email = Input.Email,
+                ProfileImg = "https://storageaccountthana.blob.core.windows.net/files/0d20dcfa-688e-4e8e-b627-e005dda0a389.profile.jpg"
+                
             };
 
         var result = await UserManager.CreateAsync(user, Input.Password);
 
         if (!result.Succeeded)
         {
+            identityErrors = result.Errors;
             StatusMessage = "Unable to register account";
             return;
         }
 
+        // Generate the email confirmation token
+        var token = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+        user.EmailConfirmationToken = token;
+
+        // Save the user with the token
+        await UserManager.UpdateAsync(user);
+
         if (UserManager.Options.SignIn.RequireConfirmedAccount)
         {
-            NavigationManager.NavigateTo($"/confirm?email={user.Email}");
+            await SendVerificationRequest(user.Email, token);
+            IdentityRedirectManager.RedirectTo($"/confirm?email={user.Email}");
         }
+        else
+        {
+            await SignInManager.SignInAsync(user, isPersistent: false);
+            IdentityRedirectManager.RedirectTo(ReturnUrl ?? "/");
+        }
+    }
 
-        await SignInManager.SignInAsync(user, isPersistent: false);
-        NavigationManager.NavigateTo(ReturnUrl ?? "/");
+    private async Task SendVerificationRequest(string email, string token)
+    {
+        var sender = ServiceBusClient.CreateSender("verification_request");
+        var emailJson = JsonSerializer.Serialize(new { Email = email, Token = token });
+        var message = new ServiceBusMessage(emailJson);
+
+        await sender.SendMessageAsync(message);
     }
 
     private sealed class InputModel

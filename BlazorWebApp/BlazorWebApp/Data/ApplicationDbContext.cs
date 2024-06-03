@@ -9,7 +9,9 @@ namespace BlazorWebApp.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<AddressEntity> Addresses { get; set; }
+
         public DbSet<FileEntity> Files { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+
     }
 }

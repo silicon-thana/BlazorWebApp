@@ -9,12 +9,13 @@ public class ApplicationUser : IdentityUser
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
     public string? Biography { get; set; }
-    public string? ProfileImg { get; set; } /*= "https://storageaccountthana.blob.core.windows.net/files/523b1e39-f4fb-4707-9125-bcaeff0fd399.profile-24.png";*/
+    public string? ProfileImg { get; set; }
     public int? AddressId { get; set; }
-    public AddressEntity Address { get; set; }
+    public AddressEntity? Address { get; set; }
     public bool IsSubscribed { get; set; }
     public bool IsDarkTheme { get; set; }
     public string? NotificationEmail { get; set; }
+    public string? EmailConfirmationToken { get; set; }
 
 
 }

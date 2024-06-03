@@ -1,0 +1,113 @@
+﻿@page "/confirm"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Identity
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject UserManager<ApplicationUser> UserManager
+
+@attribute [AllowAnonymous]
+
+<PageTitle>Confirm Email</PageTitle>
+
+<section id="confirm-email">
+    <div class="container">
+        @if (!string.IsNullOrEmpty(StatusMessage))
+        {
+            <div class="alert alert-danger">
+                @StatusMessage
+            </div>
+        }
+
+        <EditForm Model="Input" OnValidSubmit="VerifyEmail" FormName="validateCode" novalidate>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <h1>Confirm Email</h1>
+            <p>Please enter the verification code sent to your email.</p>
+
+            <div class="content">
+                <div id="form-code" class="input-group">
+                    <label>Verification Code</label>
+                    <InputText @bind-Value="Input.Code" placeholder="Enter verification code" />
+                    <ValidationMessage For="() => Input.Code" />
+                </div>
+            </div>
+            <button id="form-submit" class="btn-theme" type="submit">Verify</button>
+        </EditForm>
+    </div>
+</section>
+
+@code {
+    private string? StatusMessage { get; set; }
+    private string Email { get; set; } = null!;
+
+    private InputModel Input { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        // Get email from query parameters
+        var uri = new Uri(NavigationManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        Email = query["email"]!;
+
+        if (string.IsNullOrEmpty(Email))
+        {
+            StatusMessage = "Invalid request. Email is missing.";
+        }
+    }
+
+    private async Task VerifyEmail()
+    {
+        try
+        {
+            var user = await UserManager.FindByEmailAsync(Email);
+            if (user == null)
+            {
+                StatusMessage = "User not found.";
+                return;
+            }
+
+            var verifyResponse = await Http.PostAsJsonAsync(Configuration["VerifyCodeAPI"], new { Email, Input.Code });
+            if (verifyResponse.IsSuccessStatusCode)
+            {
+                if (user.EmailConfirmationToken != null)
+                {
+                    var result = await UserManager.ConfirmEmailAsync(user, user.EmailConfirmationToken);
+                    if (result.Succeeded)
+                    {
+                        StatusMessage = "Confirmed";
+                        NavigationManager.NavigateTo("/signin");
+                    }
+                    else
+                    {
+                        StatusMessage = "Email confirmation failed.";
+                    }
+                }
+                else
+                {
+                    StatusMessage = "Failed to retrieve confirmation token.";
+                }
+            }
+            else
+            {
+                StatusMessage = "Verification failed. Please check the code and try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        public string Code { get; set; } = "";
+    }
+}

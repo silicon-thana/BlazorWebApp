@@ -24,12 +24,12 @@
             </nav>
         </div>
         <div class="btn-switch">
-            <label>Light</label>
+@*             <label>Light</label>
             <label class="switch" for="switch-mode">
                 <input type="checkbox" id="switch-mode" @onchange="ToggleDarkMode" />
                 <span class="slider round"></span>
             </label>
-            <label>Dark</label>
+            <label>Dark</label> *@
         </div>
         <div class="account-buttons">
             <a class="btn-transparent" href="/chat"><i class="fa-regular fa-comment-dots"></i><span>Chat</span> </a>
@@ -72,9 +72,5 @@
 </header>
 
 @code {
-    private async Task ToggleDarkMode(ChangeEventArgs e)
-    {
-        bool isDark = (bool)e.Value;
-        await JSRuntime.InvokeVoidAsync("setDarkMode", isDark);
-    }
+
 }

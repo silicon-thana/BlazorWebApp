@@ -1,8 +1,9 @@
-﻿@inject NavigationManager NavigationManager
+﻿@page "/redirecttologin"
+@inject NavigationManager Navigation
 
 @code {
     protected override void OnInitialized()
     {
-        NavigationManager.NavigateTo("/signin", true);
+        Navigation.NavigateTo($"/signin?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
     }
 }
